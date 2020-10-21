@@ -1,26 +1,27 @@
 import math
 
-"""ATTENTION : L ENSEMBLE DES CALCULS CE FAIT DANS LE REPERE OU
+"""ATTENTION : L ENSEMBLE DES CALCULS CE FAIT DANS LE REPERE OU:
 L AXE X = parrallèle à la surface de l'eau, 0 au milieu de la barge (et de la grue)
 L AXE Z = verticale (perendiculaire à l'eau), 0 au niveau de l'eau
+(sauf pour la fonction 'center_thust()', voir axes verts dans le README)
 """
 print("On considère que la masse de la grue a pour position x d/2 après déplacement du poid")
 
 # ------ Definir les variables ------
 # --- Variables muablbes ---
-mb = 0      # masse_barge
-mg = 0      # masse_grue
-mp = 0      # masse_poid
-# mcp = 0     # masse_contre_poid
-lb = 0      # longeur_barge - lorsqu un volume est necessaire, on considere la longeur = largeur
-hb = 0      # hauteur_barge
-lg = 0      # longeur_grue
-hg = 0      # hauteur_grue
-dd = 0  # distance_deplacement
+mb = 20.0  # masse_barge
+mg = 13.5  # masse_grue
+mp = 1.5  # masse_poid
+# mcp = 0   # masse_contre_poid
+lb = 1.0  # longeur_barge - lorsqu un volume est necessaire, on considere la longeur = largeur
+hb = 0.08  # hauteur_barge
+lg = 0.0  # longeur_grue
+hg = 0.1  # hauteur_grue
+dd = 2.0  # distance_deplacement
 hp = 0  # Hauteur du poid lors de la situation initiale (il sera en z = hd après le déplacement)
 theta = 0  # Angle d'inclinaison de la barge
 # --- Variables immuables ---
-g = 9.81    # Accélération gravitationelle
+g = 9.81  # Accélération gravitationelle
 
 
 # ------ Les fonctions elementaires ------
@@ -30,7 +31,7 @@ def find_hc():
     :return: If hc < barge height : the distance hc, where hc is the length follow the submerged z-axis of the barge. Otherwise, False
     """
     sub_volume = (mg + mb + mp) / 1000
-    hc = sub_volume / (2 * lb)
+    hc = sub_volume / (lb ** 2)
     if hc < hb:
         return hc
     else:
@@ -44,9 +45,9 @@ def angle_max():
     """
     # There is 2 critical points, the critical point is the minimum
     tan_theta1 = (hb - find_hc()) / (lb / 2)
-    angle_max1 = math.atan2(tan_theta1)
+    angle_max1 = math.atan(tan_theta1)
     tan_theta2 = find_hc() / (lb / 2)
-    angle_max2 = math.atan2(tan_theta2)
+    angle_max2 = math.atan(tan_theta2)
     if angle_max1 <= angle_max2:
         return angle_max1
     else:
@@ -64,8 +65,8 @@ def center_gravity_glob(m1, m2, m3, d1, d2, d3):
     :return: a tuple with the coordinates of the center of gravity og m1, m2 and m3
         """
     cg = []
-    for axes in range(1):
-        coord = (m1 * d1[axes]) + (m2 * d2[axes]) + (m3 * d3[axes]) / m1 + m2 + m3
+    for axes in [0, 1]:
+        coord = ((m1 * d1[axes]) + (m2 * d2[axes]) + (m3 * d3[axes])) / (m1 + m2 + m3)
         cg.append(coord)
     return tuple(cg)
 
@@ -81,17 +82,16 @@ def center_gravity(init):
     d1 = (0, dist_axex_cgbarge)
     if init:
         d2 = (0, hd + hg)
-        d3 = (0, hd + hp)
+        d3 = (0, hd + hg)
     else:
-        d2 = (dd / 2, hd + hg)
-        d3 = (dd, hd)
+        d2 = (0, hd + hg)
+        d3 = (dd, hd + hg)
     return center_gravity_glob(mb, mg, mp, d1, d2, d3)
 
 
 def center_thrust(init, angle):
     """ Caution : Rotation is also applied to the axes!) - CENTRE DE POUSSEE
     :type init: bool
-    :type height: float
     :type angle: float
     :return:
     """
@@ -135,3 +135,13 @@ def rotate_center_thust(angle):
     # faire tourner le repere
     coordonate_l = [coordonate_t[0] / math.cos(angle), coordonate_t[1] / math.cos(angle)]
     return coordonate_l
+
+
+# ------ Trouver l'angle ------
+
+
+# ------ Test ------
+print("Hc :", find_hc())
+print("Angle max :", angle_max())
+print("Centre de gravité initiale :", center_gravity(True))
+print("Centre de gravité mouvement :", center_gravity(False))
