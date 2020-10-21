@@ -51,17 +51,39 @@ def angle_max(axe):
     """
     global tan_theta
     if axe == "y":
-        tan_theta = (hauteur_barge - calcul_hc()) / longeur_barge//2
+        tan_theta = (hauteur_barge - calcul_hc()) / (longeur_barge / 2)
     elif axe == "x":
-        tan_theta = (hauteur_barge - calcul_hc()) / largeur_barge // 2
+        tan_theta = (hauteur_barge - calcul_hc()) / (largeur_barge / 2)
     # elif axe == "xy": todo trouver comment faire si ça tourne autour de 2 axes => si la grua à une base qui bouge
 
     theta = math.atan2(tan_theta)
     return theta
 
 
+def center_gravity_global(m1, m2, m3, d1, d2, d3):
+    """
+    :param m1:
+    :param m2:
+    :param m3:
+    :param d1: tuples (vecteur depuis l'origine) (coordonné du centre de gravité de m1)
+    :param d2: tuples (vecteur depuis l'origine) (coordonné du centre de gravité de m2)
+    :param d3: tuples (vecteur depuis l'origine) (coordonné du centre de gravité de m3)
+    :return:
+    """
+    cg = []
+    for axes in range(2):
+        coord = (m1 * d1[axes]) + (m2 * d2[axes]) + (m3 * d3[axes]) / m1 + m2 + m3
+        cg.append(coord)
+    return tuple(cg)
+
+
 def center_gravity(initial):
-    code
+    """
+    Calcule les coordonnées du centre de gravité (voir repère)
+    :type initial: bool
+    :param initial: True => situation initiale / False => situation avec dé^placement
+    :return: Les cooronées du centre de gravite en fonction de initial
+    """
 
 
 
