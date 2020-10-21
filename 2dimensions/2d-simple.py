@@ -4,6 +4,7 @@ import math
 L AXE X = parrallèle à la surface de l'eau, 0 au milieu de la barge (et de la grue)
 L AXE Z = verticale (perendiculaire à l'eau), 0 au niveau de l'eau
 """
+print("On considère que la masse de la grue a pour position x d/2 après déplacement du poid")
 
 # ------ Definir les variables ------
 # --- Variables muablbes ---
@@ -15,18 +16,19 @@ lb = 0      # longeur_barge - lorsqu un volume est necessaire, on considere la l
 hb = 0      # hauteur_barge
 lg = 0      # longeur_grue
 hg = 0      # hauteur_grue
-dd = 0      # distance_deplacement
-theta = 0   # Angle d'inclinaison de la barge
+dd = 0  # distance_deplacement
+hp = 0  # Hauteur du poid lors de la situation initiale (il sera en z = hd après le déplacement)
+theta = 0  # Angle d'inclinaison de la barge
 # --- Variables immuables ---
 g = 9.81    # Accélération gravitationelle
 
 
 # ------ Les fonctions elementaires ------
-def return_hc():
-    """Calculer la longeur immergee de la barge
-        :return: Si hc < hauteur barge : la distence hc, ou hc est la longeur suivent l'axe z immergee de la barge
-                    Sinon, False
-        """
+def hc():
+    """
+    Calculate the submerged length of the barge
+    :return: If hc < barge height : the distance hc, where hc is the length follow the submerged z-axis of the barge. Otherwise, False
+    """
     sub_volume = (mg + mb + mp) / 1000
     hc = sub_volume / (2 * lb)
     if hc < hb:
@@ -35,13 +37,61 @@ def return_hc():
         return False
 
 
-def return_angle_max():
+def angle_max():
     """
-    Calcul l'angle d'inclinaison maximum de la barge. Si cette valeur est dépassée, l'au s'inflitre sur la barge
-    :return: l'angle maximum EN RADIANS (selon l axe x - cad rotation autour de l axe y, imaginaire en 2D)
+    Calculate the maximum tilt angle of the barge. If this value is exceeded, water will seep onto the barge.
+    :return: the maximum angle IN RADIANS (along x-axis - cad rotation around y-axis, imaginary in 2D)
     """
-    tan_theta = (hb - return_hc()) / (lb / 2)
-    angle_max = math.atan2(tan_theta)
-    return angle_max
+    # There is 2 critical points, the critical point is the minimum
+    tan_theta1 = (hb - hc()) / (lb / 2)
+    angle_max1 = math.atan2(tan_theta1)
+    tan_theta2 = hc() / (lb / 2)
+    angle_max2 = math.atan2(tan_theta2)
+    if angle_max1 <= angle_max2:
+        return angle_max1
+    else:
+        return angle_max2
 
 
+def center_gravity_glob(m1, m2, m3, d1, d2, d3):
+    """
+    :type m1: float
+    :type m2: float
+    :type m3: float
+    :type d1: tuple, 2 values
+    :type d2: tuple, 2 values
+    :type d3: tuple, 2 values
+    :return: a tuple with the coordinates of the center of gravity og m1, m2 and m3
+        """
+    cg = []
+    for axes in range(1):
+        coord = (m1 * d1[axes]) + (m2 * d2[axes]) + (m3 * d3[axes]) / m1 + m2 + m3
+        cg.append(coord)
+    return tuple(cg)
+
+
+def center_gravity(init):
+    """
+    :type init: bool, True in the initial situation
+    :return: tuple with the coordinates of the center of gravity og mb, mg and mp depending on the situation
+    """
+    dist_axex_cgbarge = (hb / 2) - hc()
+    hd = hb - hc()
+    d1 = (0, dist_axex_cgbarge)
+    if init:
+        d2 = (0, hd + hg)
+        d3 = (0, hd + hp)
+    else:
+        d2 = (dd / 2, hd + hg)
+        d3 = (dd, hd)
+    return center_gravity_glob(mb, mg, mp, d1, d2, d3)
+
+
+def center_thrust(init, parrallel_left, parrallel_right, height):
+    if init:
+        ctx = lb / 2
+        ctz = hc() / 2
+        return tuple([ctx, ctz])
+    else:
+        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (parrallel_right + parrallel_left))
+        # todo: Help
