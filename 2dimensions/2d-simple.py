@@ -58,9 +58,9 @@ def center_gravity_glob(m1, m2, m3, d1, d2, d3):
     :type m1: float
     :type m2: float
     :type m3: float
-    :type d1: tuple, 2 values
-    :type d2: tuple, 2 values
-    :type d3: tuple, 2 values
+    :type d1: tuple
+    :type d2: tuple
+    :type d3: tuple
     :return: a tuple with the coordinates of the center of gravity og m1, m2 and m3
         """
     cg = []
@@ -72,7 +72,7 @@ def center_gravity_glob(m1, m2, m3, d1, d2, d3):
 
 def center_gravity(init):
     """
-    :type init: bool, True in the initial situation
+    :type init: bool
     :return: tuple with the coordinates of the center of gravity og mb, mg and mp depending on the situation
     """
     dist_axex_cgbarge = (hb / 2) - hc()
@@ -88,10 +88,31 @@ def center_gravity(init):
 
 
 def center_thrust(init, parrallel_left, parrallel_right, height):
+    """ Caution : Rotation is also applied to the axes!)
+    :type init: bool
+    :type parrallel_left: float
+    :type parrallel_right: float
+    :type height: float
+    :return:
+    """
     if init:
         ctx = lb / 2
         ctz = hc() / 2
         return tuple([ctx, ctz])
     else:
+        # For more information, see the README file
         dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (parrallel_right + parrallel_left))
         # todo: Help
+
+
+def center_thrust_theta(theta):
+    """
+    :type theta: float
+    :return:
+    """
+    init = False
+    # find parrallel_left
+    # find parrallel_right
+    # find height
+    coordonate = center_thrust(False, x, x, x)
+    return coordonate
