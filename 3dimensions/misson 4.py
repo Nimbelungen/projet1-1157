@@ -4,11 +4,14 @@ import math
 masse_barge = 10
 masse_grue = 15
 masse_poid_deplace = 1.5
+
 distance_deplacement = 2
 hauteur_deplacement = 0
+
 longeur_barge = 1
 largeur_barge = 1
 hauteur_barge = 0.8
+
 hauteur_grue = 0.5
 
 # Variables fixes
@@ -62,13 +65,13 @@ def angle_max(axe):
 
 def center_gravity_global(m1, m2, m3, d1, d2, d3):
     """
-    :param m1:
-    :param m2:
-    :param m3:
-    :param d1: tuples (vecteur depuis l'origine) (coordonné du centre de gravité de m1)
-    :param d2: tuples (vecteur depuis l'origine) (coordonné du centre de gravité de m2)
-    :param d3: tuples (vecteur depuis l'origine) (coordonné du centre de gravité de m3)
-    :return:
+    :type m1: float
+    :type m2: float
+    :type m3: float
+    :type d1: tuple
+    :type d2: tuple
+    :type d3: tuple
+    :return: un tuple avec les coordonnées du centre de gravité
     """
     cg = []
     for axes in range(2):
@@ -84,12 +87,16 @@ def center_gravity(initial):
     :param initial: True => situation initiale / False => situation avec dé^placement
     :return: Les cooronées du centre de gravite en fonction de initial
     """
-
+    distance_z_origine_cg = (hauteur_barge // 2) - calcul_hc()  # Hc // 2 = hc + x
+    distance_z_origine_hautbarge = hauteur_barge - calcul_hc()
+    if initial:
+        return center_gravity_global(masse_grue, masse_barge, masse_poid_deplace, (0, 0, distance_z_origine_cg), (0, 0, distance_z_origine_hautbarge + hauteur_grue), (0, 0, 0))
+    else:
+        return center_gravity_global(masse_grue, masse_barge, masse_poid_deplace, (x, x, x), (x, x, x), (distance_deplacement, x, x))
 
 
 def center_pousse_tra(parallel1, parallel2, hauteur, theta):
     code
-
 
 
 def calcul_theta():
