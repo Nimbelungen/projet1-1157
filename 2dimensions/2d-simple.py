@@ -88,11 +88,9 @@ def center_gravity(init):
     return center_gravity_glob(mb, mg, mp, d1, d2, d3)
 
 
-def center_thrust(init, parrallel_left, parrallel_right, height, angle):
+def center_thrust(init, angle):
     """ Caution : Rotation is also applied to the axes!) - CENTRE DE POUSSEE
     :type init: bool
-    :type parrallel_left: float
-    :type parrallel_right: float
     :type height: float
     :type angle: float
     :return:
@@ -103,15 +101,21 @@ def center_thrust(init, parrallel_left, parrallel_right, height, angle):
         ctz = hc / 2
         return tuple([ctx, ctz])
     else:
-        # For more information, see the README file
-        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (
-                    parrallel_right + parrallel_left))  # Formula find on Wikipedia
+        # variables utiles - For more information, see the README file
+        parrallel_left = (hc - (math.tan(angle) * lb / 2))  # longeur
+        parrallel_right = (hc + (math.tan(angle) * lb / 2))  # longeur
+
         c1 = [-lb / 2, -hc]
         c2 = [lb / 2, -hc]
-        d1 = (hc - (math.tan(angle) * lb / 2)) / 2
-        d2 = (hc + (math.tan(angle) * lb / 2)) / 2
+        d1 = parrallel_left / 2
+        d2 = parrallel_right / 2
         p1 = [c1[0], c1[1] + d1]
         p2 = [c2[0], c2[1] + d2]
+
+        height = math.sqrt(((c2[0] - c1[0]) ** 2) + ((c2[1] - c2[1]) ** 2))
+        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (
+                    parrallel_right + parrallel_left))  # Formula find on Wikipedia
+
         # droite_p1_p2 = z - p1[1] = ( (p2[1] - p1[1]) / (p2[0] - p1[0]) ) * (x - p1[0])
         # droite_perp_dist_pr = z = dist_pr
         # On trouve donc les coordonnées qui sont [x, z] telle que ces 2 équations soient vérifiées
@@ -120,19 +124,14 @@ def center_thrust(init, parrallel_left, parrallel_right, height, angle):
         return tuple([x_center_thust, z_center_thust])
 
 
-def center_thrust_theta(angle):
+def rotate_center_thust(angle):
     """
     :type angle: float
     :return:
     """
     init = False
-    # find parrallel_left
-    # find parrallel_right
-    # find height
-
     # Coordonnes dans le repere non 'vertical'
-    coordonate_t = center_thrust(False, x, x, x, angle)
+    coordonate_t = center_thrust(False, angle)
     # faire tourner le repere
-    coordonate_l = list(coordonate_t)
-
+    coordonate_l = [coordonate_t[0] / math.cos(angle), coordonate_t[1] / math.cos(angle)]
     return coordonate_l
