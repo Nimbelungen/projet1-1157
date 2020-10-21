@@ -24,7 +24,7 @@ g = 9.81    # Accélération gravitationelle
 
 
 # ------ Les fonctions elementaires ------
-def hc():
+def find_hc():
     """
     Calculate the submerged length of the barge
     :return: If hc < barge height : the distance hc, where hc is the length follow the submerged z-axis of the barge. Otherwise, False
@@ -43,9 +43,9 @@ def angle_max():
     :return: the maximum angle IN RADIANS (along x-axis - cad rotation around y-axis, imaginary in 2D)
     """
     # There is 2 critical points, the critical point is the minimum
-    tan_theta1 = (hb - hc()) / (lb / 2)
+    tan_theta1 = (hb - find_hc()) / (lb / 2)
     angle_max1 = math.atan2(tan_theta1)
-    tan_theta2 = hc() / (lb / 2)
+    tan_theta2 = find_hc() / (lb / 2)
     angle_max2 = math.atan2(tan_theta2)
     if angle_max1 <= angle_max2:
         return angle_max1
@@ -71,12 +71,13 @@ def center_gravity_glob(m1, m2, m3, d1, d2, d3):
 
 
 def center_gravity(init):
+    hc = find_hc()
     """
     :type init: bool
     :return: tuple with the coordinates of the center of gravity og mb, mg and mp depending on the situation
     """
-    dist_axex_cgbarge = (hb / 2) - hc()
-    hd = hb - hc()
+    dist_axex_cgbarge = (hb / 2) - hc
+    hd = hb - hc
     d1 = (0, dist_axex_cgbarge)
     if init:
         d2 = (0, hd + hg)
@@ -87,32 +88,51 @@ def center_gravity(init):
     return center_gravity_glob(mb, mg, mp, d1, d2, d3)
 
 
-def center_thrust(init, parrallel_left, parrallel_right, height):
-    """ Caution : Rotation is also applied to the axes!)
+def center_thrust(init, parrallel_left, parrallel_right, height, angle):
+    """ Caution : Rotation is also applied to the axes!) - CENTRE DE POUSSEE
     :type init: bool
     :type parrallel_left: float
     :type parrallel_right: float
     :type height: float
+    :type angle: float
     :return:
     """
+    hc = find_hc()
     if init:
         ctx = lb / 2
-        ctz = hc() / 2
+        ctz = hc / 2
         return tuple([ctx, ctz])
     else:
         # For more information, see the README file
-        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (parrallel_right + parrallel_left))
-        # todo: Help
+        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (
+                    parrallel_right + parrallel_left))  # Formula find on Wikipedia
+        c1 = [-lb / 2, -hc]
+        c2 = [lb / 2, -hc]
+        d1 = (hc - (math.tan(angle) * lb / 2)) / 2
+        d2 = (hc + (math.tan(angle) * lb / 2)) / 2
+        p1 = [c1[0], c1[1] + d1]
+        p2 = [c2[0], c2[1] + d2]
+        # droite_p1_p2 = z - p1[1] = ( (p2[1] - p1[1]) / (p2[0] - p1[0]) ) * (x - p1[0])
+        # droite_perp_dist_pr = z = dist_pr
+        # On trouve donc les coordonnées qui sont [x, z] telle que ces 2 équations soient vérifiées
+        x_center_thust = (lb / 2) - dist_pr
+        z_center_thust = (((p2[0] - p1[0]) / (p2[1] - p1[1])) * (dist_pr - p1[1])) - p1[0]
+        return tuple([x_center_thust, z_center_thust])
 
 
-def center_thrust_theta(theta):
+def center_thrust_theta(angle):
     """
-    :type theta: float
+    :type angle: float
     :return:
     """
     init = False
     # find parrallel_left
     # find parrallel_right
     # find height
-    coordonate = center_thrust(False, x, x, x)
-    return coordonate
+
+    # Coordonnes dans le repere non 'vertical'
+    coordonate_t = center_thrust(False, x, x, x, angle)
+    # faire tourner le repere
+    coordonate_l = list(coordonate_t)
+
+    return coordonate_l
