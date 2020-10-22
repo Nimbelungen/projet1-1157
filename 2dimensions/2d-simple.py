@@ -138,6 +138,20 @@ def rotate_center_thust(angle):
 
 
 # ------ Trouver l'angle ------
+def find_theta():
+    first = 0
+    last = round(angle_max(), 6)
+    find = False
+
+    while first <= angle_max() and not find:
+        middle = round(((find + last) / 2), 6)
+        if round(rotate_center_thust(middle)[0]) == round(center_gravity(False)[0]):
+            return middle
+        else:
+            if round(rotate_center_thust(middle)[0]) < round(center_gravity(False)[0]):
+                last = middle - 1
+            else:
+                first = middle + 1
 
 
 # ------ Test ------
@@ -145,3 +159,4 @@ print("Hc :", find_hc())
 print("Angle max :", angle_max())
 print("Centre de gravité initiale :", center_gravity(True))
 print("Centre de gravité mouvement :", center_gravity(False))
+print("L'angle theta vaut :", find_theta())
