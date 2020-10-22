@@ -102,8 +102,8 @@ def center_thrust(init, angle):
         return tuple([ctx, ctz])
     else:
         # variables utiles - For more information, see the README file
-        parrallel_left = (hc - (math.tan(angle) * lb / 2))  # longeur
-        parrallel_right = (hc + (math.tan(angle) * lb / 2))  # longeur
+        parrallel_left = (hc - (math.tan(angle) * (lb / 2)))  # longeur
+        parrallel_right = (hc + (math.tan(angle) * (lb / 2)))  # longeur
 
         c1 = [-lb / 2, -hc]
         c2 = [lb / 2, -hc]
@@ -112,16 +112,17 @@ def center_thrust(init, angle):
         p1 = [c1[0], c1[1] + d1]
         p2 = [c2[0], c2[1] + d2]
 
-        height = math.sqrt(((c2[0] - c1[0]) ** 2) + ((c2[1] - c2[1]) ** 2))
-        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (
-                parrallel_right + parrallel_left))  # Formula find on Wikipedia
+        height = lb  # math.sqrt(((c2[0] - c1[0]) ** 2) + ((c2[1] - c2[1]) ** 2))
+
+        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (parrallel_right + parrallel_left))  #
+        # Formula find on Wikipedia
 
         # droite_p1_p2 = z - p1[1] = ( (p2[1] - p1[1]) / (p2[0] - p1[0]) ) * (x - p1[0])
         # droite_perp_dist_pr = z = dist_pr
         # On trouve donc les coordonnées qui sont [x, z] telle que ces 2 équations soient vérifiées
         x_center_thust = (lb / 2) - dist_pr
-        # z_center_thust = (((p2[0] - p1[0]) / (p2[1] - p1[1])) * (dist_pr - p1[1])) - p1[0]
-        return tuple([x_center_thust, 0])  # remplacer 0 par z_center_thust
+        z_center_thust = (((p2[1] - p1[1]) / (p2[0] - p1[0])) * (x_center_thust - p1[0])) + p1[1]
+        return tuple([x_center_thust, z_center_thust])
 
 
 def rotate_center_thust(angle):
@@ -133,7 +134,8 @@ def rotate_center_thust(angle):
     # Coordonnes dans le repere non 'vertical'
     coordonate_t = center_thrust(False, angle)
     # faire tourner le repere
-    coordonate_l = [coordonate_t[0] / math.cos(angle), coordonate_t[1] / math.cos(angle)]
+    coordonate_l = tuple([(coordonate_t[0] * math.cos(-angle)) - (coordonate_t[1] * math.sin(-angle)),
+                          (coordonate_t[0] * math.sin(-angle)) + (coordonate_t[1] * math.cos(-angle))])
     return coordonate_l
 
 
@@ -145,13 +147,14 @@ def find_theta():
 
     while first <= last and not find:
         middle = (first + last) / 2
-        if round(rotate_center_thust(middle)[0], 3) == round(center_gravity(False)[0], 3):
-            return round(middle, 3)
+        if rotate_center_thust(middle)[0] == center_gravity(False)[0]:
+            return middle
         else:
-            if rotate_center_thust(middle)[0] > center_gravity(False)[0]:
-                last = middle - 0.001
+            if rotate_center_thust(middle)[0] < center_gravity(False)[0]:
+                first = middle + 0.00000000000000001
+
             else:
-                first = middle + 0.001
+                last = middle - 0.00000000000000001
 
 
 # ------ Test ------
@@ -161,3 +164,7 @@ print("Centre de gravité initiale :", center_gravity(True))
 print("Centre de gravité après mouvement :", center_gravity(False))
 print("Centre de poussé après mouvement : ", rotate_center_thust(0.03697))
 print("L'angle theta vaut :", find_theta())
+print("")
+print("----- Corrections -----")
+print("Cg x", center_gravity(False)[0])
+print("Cp x", rotate_center_thust(find_theta())[0])
