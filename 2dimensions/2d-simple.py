@@ -114,14 +114,14 @@ def center_thrust(init, angle):
 
         height = math.sqrt(((c2[0] - c1[0]) ** 2) + ((c2[1] - c2[1]) ** 2))
         dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (
-                    parrallel_right + parrallel_left))  # Formula find on Wikipedia
+                parrallel_right + parrallel_left))  # Formula find on Wikipedia
 
         # droite_p1_p2 = z - p1[1] = ( (p2[1] - p1[1]) / (p2[0] - p1[0]) ) * (x - p1[0])
         # droite_perp_dist_pr = z = dist_pr
         # On trouve donc les coordonnées qui sont [x, z] telle que ces 2 équations soient vérifiées
         x_center_thust = (lb / 2) - dist_pr
-        z_center_thust = (((p2[0] - p1[0]) / (p2[1] - p1[1])) * (dist_pr - p1[1])) - p1[0]
-        return tuple([x_center_thust, z_center_thust])
+        # z_center_thust = (((p2[0] - p1[0]) / (p2[1] - p1[1])) * (dist_pr - p1[1])) - p1[0]
+        return tuple([x_center_thust, 0])  # remplacer 0 par z_center_thust
 
 
 def rotate_center_thust(angle):
@@ -139,24 +139,25 @@ def rotate_center_thust(angle):
 
 # ------ Trouver l'angle ------
 def find_theta():
-    first = 0
-    last = round(angle_max(), 6)
+    first = 0.0
+    last = angle_max()
     find = False
 
-    while first <= angle_max() and not find:
-        middle = round(((find + last) / 2), 6)
-        if round(rotate_center_thust(middle)[0]) == round(center_gravity(False)[0]):
-            return middle
+    while first <= last and not find:
+        middle = (first + last) / 2
+        if round(rotate_center_thust(middle)[0], 3) == round(center_gravity(False)[0], 3):
+            return round(middle, 3)
         else:
-            if round(rotate_center_thust(middle)[0]) < round(center_gravity(False)[0]):
-                last = middle - 1
+            if rotate_center_thust(middle)[0] > center_gravity(False)[0]:
+                last = middle - 0.001
             else:
-                first = middle + 1
+                first = middle + 0.001
 
 
 # ------ Test ------
 print("Hc :", find_hc())
 print("Angle max :", angle_max())
 print("Centre de gravité initiale :", center_gravity(True))
-print("Centre de gravité mouvement :", center_gravity(False))
+print("Centre de gravité après mouvement :", center_gravity(False))
+print("Centre de poussé après mouvement : ", rotate_center_thust(0.03697))
 print("L'angle theta vaut :", find_theta())
