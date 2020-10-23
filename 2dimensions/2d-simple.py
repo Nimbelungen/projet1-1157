@@ -5,7 +5,7 @@ L AXE X = parrallèle à la surface de l'eau, 0 au milieu de la barge (et de la 
 L AXE Z = verticale (perendiculaire à l'eau), 0 au niveau de l'eau
 (sauf pour la fonction 'center_thust()', voir axes verts dans le README)
 """
-print("On considère que la masse de la grue a pour position x d/2 après déplacement du poid")
+print("On considere que la masse de la grue a pour position x d/2 après deplacement du poids")
 
 # ------ Definir les variables ------
 # --- Variables muablbes ---
