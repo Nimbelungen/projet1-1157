@@ -63,7 +63,7 @@ def center_gravity_glob(m1, m2, m3, d1, d2, d3):
     :type d2: tuple
     :type d3: tuple
     :return: a tuple with the coordinates of the center of gravity og m1, m2 and m3
-        """
+    """
     cg = []
     for axes in [0, 1]:
         coord = ((m1 * d1[axes]) + (m2 * d2[axes]) + (m3 * d3[axes])) / (m1 + m2 + m3)
@@ -93,7 +93,8 @@ def center_thrust(init, angle):
     """ Caution : Rotation is also applied to the axes!) - CENTRE DE POUSSEE
     :type init: bool
     :type angle: float
-    :return:
+    :return: Un tuple avec les coordonnees (x, z) du centre de poussee dans un repere tourne vers la droite d un angle
+    'angle'
     """
     hc = find_hc()
     if init:
@@ -128,7 +129,7 @@ def center_thrust(init, angle):
 def rotate_center_thust(angle):
     """
     :type angle: float
-    :return:
+    :return: un tuple (x, y) avec les coordonnee du centre de poussee dans le repere initiale
     """
     init = False
     # Coordonnes dans le repere non 'vertical'
@@ -141,6 +142,10 @@ def rotate_center_thust(angle):
 
 # ------ Trouver l'angle ------
 def find_theta():
+    """
+    Algorithme de recherche de l'angle theta
+    :return: l'angle theta en radian
+    """
     first = 0.0
     last = angle_max()
     find = False
@@ -157,13 +162,19 @@ def find_theta():
                 last = middle - 0.00000000000000001
 
 
+def to_degrees(angle):
+    return (180 * angle) / math.pi
+
+
 # ------ Test ------
 print("Hc :", find_hc())
 print("Angle max :", angle_max())
 print("Centre de gravité initiale :", center_gravity(True))
 print("Centre de gravité après mouvement :", center_gravity(False))
 print("Centre de poussé après mouvement : ", rotate_center_thust(0.03697))
-print("L'angle theta vaut :", find_theta())
+print("L'angle theta vaut :", find_theta(), "rad")
+print("L'angle theta vaut :", to_degrees(find_theta()), "°")
+
 print("")
 print("----- Corrections -----")
 print("Cg x", center_gravity(False)[0])
