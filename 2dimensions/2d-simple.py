@@ -1,6 +1,6 @@
 import math
 
-"""ATTENTION : L ENSEMBLE DES CALCULS CE FAIT DANS LE REPERE OU:
+"""ATTENTION : L ENSEMBLE DES CALCULS SE FONT DANS LE REPERE OU:
 L AXE X = parrallèle à la surface de l'eau, 0 au milieu de la barge (et de la grue)
 L AXE Z = verticale (perendiculaire à l'eau), 0 au niveau de l'eau
 (sauf pour la fonction 'center_thust()', voir axes verts dans le README)
