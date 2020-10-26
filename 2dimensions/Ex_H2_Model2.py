@@ -1,4 +1,13 @@
 import math
+""" INFORMATIONS
+Ceci est l'exercice de phyqique H2. La méthode de résolution de l'exercice est la suivente:
+1. La masse mp n'est pas considérée comme négligeable
+2. Le déplacement de mp provoque un changement de position du centre de gravité
+3. On considère alors que la barge va subir une inclinaison d'angle thêta
+4. Le centre de poussé change alors aussi d'emplacement
+5. La barge sera à l'équilibre lorsque les positions en x du centre de gravité et du centre de poussée seront =
+6. On trouve l'angle par essaie-erreur car les coordonnées du centre de poussées dépendent direcetement de cet angle. 
+"""
 
 """ATTENTION : L ENSEMBLE DES CALCULS SE FONT DANS LE REPERE OU:
 L AXE X = parrallèle à la surface de l'eau, 0 au milieu de la barge (et de la grue)
