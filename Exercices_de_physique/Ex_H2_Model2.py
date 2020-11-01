@@ -1,4 +1,7 @@
 import math
+
+import Exercices_de_physique.formulas as form
+
 """ INFORMATIONS
 Ceci est l'exercice de phyqique H2. La méthode de résolution de l'exercice est la suivente:
 1. La masse mp n'est pas considérée comme négligeable
@@ -63,23 +66,6 @@ def angle_max():
         return angle_max2
 
 
-def center_gravity_glob(m1, m2, m3, d1, d2, d3):
-    """
-    :type m1: float
-    :type m2: float
-    :type m3: float
-    :type d1: tuple
-    :type d2: tuple
-    :type d3: tuple
-    :return: a tuple with the coordinates of the center of gravity og m1, m2 and m3
-    """
-    cg = []
-    for axes in [0, 1]:
-        coord = ((m1 * d1[axes]) + (m2 * d2[axes]) + (m3 * d3[axes])) / (m1 + m2 + m3)
-        cg.append(coord)
-    return tuple(cg)
-
-
 def center_gravity(init):
     hc = find_hc()
     """
@@ -95,7 +81,7 @@ def center_gravity(init):
     else:
         d2 = (0, hd + hg)
         d3 = (dd, hd + hg)
-    return center_gravity_glob(mb, mg, mp, d1, d2, d3)
+    return form.center_of_gravity_2d((mb, d1), (mg, d2), (mp, d3))
 
 
 def center_thrust(init, angle):
@@ -171,10 +157,6 @@ def find_theta():
                 last = middle - 0.00000000000000001
 
 
-def to_degrees(angle):
-    return (180 * angle) / math.pi
-
-
 # ------ Test ------
 print("Hc :", find_hc())
 print("Angle max :", angle_max())
@@ -182,7 +164,7 @@ print("Centre de gravité initiale :", center_gravity(True))
 print("Centre de gravité après mouvement :", center_gravity(False))
 print("Centre de poussé après mouvement : ", rotate_center_thust(0.03697))
 print("L'angle theta vaut :", find_theta(), "rad")
-print("L'angle theta vaut :", to_degrees(find_theta()), "°")
+print("L'angle theta vaut :", form.rad_to_degrees(find_theta()), "°")
 
 print("")
 print("----- Corrections -----")

@@ -1,6 +1,4 @@
 import math
-
-
 # You will find in this file the most important formulas that we will use to solve the different physics exercises.
 
 
@@ -13,7 +11,7 @@ def center_of_gravity_2d(*args):
     (same form for the y axes).
     :type args: tuple
     :param args: Each argument is a tuple of values. They are of the form (mass, (x-coordinate, y-coordinate)).
-    :return: A tupke witch the Coordinates in the form (x-coordinate, y-coordinate) of the center of gravity.
+    :return: A tuple witch the Coordinates in the form (x-coordinate, y-coordinate) of the center of gravity.
 
     NOT TESTED
     """
