@@ -1,6 +1,6 @@
 import math
 
-import Exercices_de_physique.formulas as form
+import formulas as form
 
 """ INFORMATIONS
 Ceci est l'exercice de phyqique H2. La méthode de résolution de l'exercice est la suivente:
