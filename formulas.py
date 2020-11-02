@@ -1,6 +1,5 @@
 import math
 
-
 # You will find in this file the most important formulas that we will use to solve the different physics exercises.
 
 
@@ -38,6 +37,7 @@ def center_of_gravity_2d(*args):
         return tuple([cgx, cgy])
 
 
+# Convert angle
 def rad_to_degrees(angle):
     """
     This function transforms a given angle in radians to angle in degrees.
