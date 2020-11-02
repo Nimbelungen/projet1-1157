@@ -2,12 +2,13 @@ import math
 
 from Modelisation.variables import *
 
-""" COORDINATE SYSTEM
-The following code takes place in a 3-dimensional coordinate system. 
-The X axis is horizontal (length)
-The Y-axis is horizontal (width)
-The Z axis is vertical (height)
-The origin is positioned in the middle of the barge along the X and Y axis and at water level along the Z axis.
+"""COORDINATE SYSTEM 
+The following code takes place in a 3-dimensional coordinate system. However, some dimensions will be regularly ignored
+(especially the Y component). A tuple with 2 coordinates is thus composed of the x-y coordinates. 
+The X axis is horizontal (length) 
+The Y-axis is horizontal (width) T
+he Z axis is vertical (height) 
+The origin is positioned in the middle of the barge along the X and Y axis and at water level along the Z axis. 
 """
 
 
@@ -29,8 +30,8 @@ def submersion_height():
 
 def maximum_inclination():
     """
-    This function calculates the maximum tilt angles before the barge sinks along the X- and Y-axis.
-    :return: A tuple. It contains the value in radians of the angle first along the X-axis and then along the Y-axis.
+    This function calculates the maximum tilt angles before the barge sinks along the X-axis.
+    :return: The value in radians of the angle along the X-axis.
     """
     # --- Along the X-axis ---
     # Fist method
@@ -45,21 +46,8 @@ def maximum_inclination():
     else:
         angle_max_x = angle_max2_x
 
-    # --- Along th Y axis ---
-    # Fist method
-    tan_theta1_y = (barge_z - submersion_height()) / (barge_y / 2)
-    angle_max1_y = math.atan(tan_theta1_y)
-    # Second method
-    tan_theta2_y = submersion_height() / (barge_y / 2)
-    angle_max2_y = math.atan(tan_theta2_y)
-    # Angle
-    if angle_max1_y <= angle_max2_y:
-        angle_max_y = angle_max1_y
-    else:
-        angle_max_y = angle_max2_y
-
     # --- Return ---
-    return tuple([angle_max_x, angle_max_y])
+    return tuple([angle_max_x])
 
 
 def center_gravity(init):
@@ -68,16 +56,16 @@ def center_gravity(init):
     hd = barge_y - hc
 
     # Center gravity Barge
-    barge_cg = (0, 0, dist_axe_x_center_gravity_barge)
+    barge_cg = (0, dist_axe_x_center_gravity_barge)
 
     # Center gravity Grue
-    grue1_cg = (0, 0, (grue1_y / 2) + hd)
+    grue1_cg = (0, (grue1_z / 2) + hd)
     if init:
-        grue2_cg = (0, 0, "z")
-        grue3_cg = (0, 0, "z")
+        grue2_cg = (0, "z")
+        grue3_cg = (0, "z")
     else:
-        grue2_cg = (0, 0, "z")
-        grue3_cg = (0, 0, "z")
+        grue2_cg = (0, "z")
+        grue3_cg = (0, "z")
 
     # Center gravity Mass
     if init:
@@ -91,3 +79,23 @@ def center_gravity(init):
         "position de la deuxième seringe"
     else:
         "position de la deuxième seringue après déplacement"
+
+
+def center_trust(init, angle):
+    hc = submersion_height()
+
+    if init:
+        ctx = barge_x / 2
+        cty = barge_y / 2
+        ctz = hc / 2
+        return tuple([ctx, cty, ctz])
+    else:
+        """ Formulas
+        lxc = ( l * (h1 + 2 * h2) ) / (3 * (h1 + h2) )
+        hc = lcz = (h1 ** 2 + h1 * h2 + h2 ** 2) / (3 * (h1 + h2) )
+        Where :
+         -  l = barge_x or barge_y
+         - h1 = parrallel_right 
+         - h2 = parrallel_left 
+           => the trapeze is in the wrong direction in the slides
+        """

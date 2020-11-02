@@ -3,7 +3,7 @@ import math
 
 
 # Center of gravity of a set of bodies
-def center_of_gravity_3d(*args):
+def center_of_gravity_2d(*args):
     """
     This function calculates the center of gravity of a set of n bodies.
     Each of these bodies has 2 coordinates (one x and one y). The system is thus in 2 dimensions.
@@ -24,21 +24,16 @@ def center_of_gravity_3d(*args):
     else:
         nominator_x = 0
         nominator_y = 0
-        nominator_z = 0
         for x in args:
             mass_dist_x = x[0] * x[1][0]
             nominator_x += mass_dist_x
         for y in args:
             mass_dist_y = y[0] * y[1][1]
             nominator_y += mass_dist_y
-        for z in args:
-            mass_dist_z = z[0] * z[1][2]
-            nominator_z += mass_dist_z
 
         cgx = nominator_x / mass_sum
         cgy = nominator_y / mass_sum
-        cgz = nominator_z / mass_sum
-        return tuple([cgx, cgy, cgz])
+        return tuple([cgx, cgy])
 
 
 def rad_to_degrees(angle):
