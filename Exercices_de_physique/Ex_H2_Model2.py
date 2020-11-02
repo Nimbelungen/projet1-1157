@@ -110,7 +110,7 @@ def center_thrust(init, angle):
 
         height = lb  # math.sqrt(((c2[0] - c1[0]) ** 2) + ((c2[1] - c2[1]) ** 2))
 
-        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (parrallel_right + parrallel_left))  #
+        dist_pr = (height / 3) * ((parrallel_right + (2 * parrallel_left)) / (parrallel_right + parrallel_left))
         # Formula find on Wikipedia
 
         # droite_p1_p2 = z - p1[1] = ( (p2[1] - p1[1]) / (p2[0] - p1[0]) ) * (x - p1[0])

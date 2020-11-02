@@ -1,6 +1,5 @@
-import math
-
 from Modelisation.variables import *
+from formulas import *
 
 """COORDINATE SYSTEM 
 The following code takes place in a 3-dimensional coordinate system. However, some dimensions will be regularly ignored
@@ -13,6 +12,7 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 
 
 # ---- Calculus Functions ----
+# Oder functions are in the 'formulas.py' file
 def submersion_height():
     """
     Calculate the submerged height of the barge
@@ -51,6 +51,12 @@ def maximum_inclination():
 
 
 def center_gravity(init):
+    """
+    Calculate the center of gravity of a set of body's
+    :type init: bool
+    :param init: True if it's the initial situation. Otherwise, False
+    :return: A tuple with the coordinate along X- and Z-axis of the center of gravity of all the variable <name>_mass
+    """
     hc = submersion_height()
     dist_axe_x_center_gravity_barge = (barge_y / 2) - hc
     hd = barge_y - hc
@@ -80,8 +86,19 @@ def center_gravity(init):
     else:
         "position de la deuxième seringue après déplacement"
 
+    return tuple(cgx, cgz)
+
 
 def center_trust(init, angle):
+    """
+    Calculate the coordinate of the center of trust of a trapezium if init == False
+    :type init: bool
+    :type angle: float
+    :param init: True if it's the initial situation. Otherwise, False
+    :param angle: The angle of inclination that the barge undergoes, changing the coordinate system and causing the
+    submerged shape change.
+    :return: A tuple with the coordinate along X- and Z-axis of the center of trust
+    """
     hc = submersion_height()
 
     if init:
@@ -90,12 +107,53 @@ def center_trust(init, angle):
         ctz = hc / 2
         return tuple([ctx, cty, ctz])
     else:
+        # --- The coordinate system also rotates ---
         """ Formulas
-        lxc = ( l * (h1 + 2 * h2) ) / (3 * (h1 + h2) )
-        hc = lcz = (h1 ** 2 + h1 * h2 + h2 ** 2) / (3 * (h1 + h2) )
+        lxc = lctx = ( l * (h1 + 2 * h2) ) / (3 * (h1 + h2) )
+        hc = lctz = (h1 ** 2 + h1 * h2 + h2 ** 2) / (3 * (h1 + h2) )
         Where :
-         -  l = barge_x or barge_y
+         -  l = barge_x
          - h1 = parrallel_right 
          - h2 = parrallel_left 
            => the trapeze is in the wrong direction in the slides
         """
+        # Length of the 2 parallel sides of the trapeze
+        parrallel_left = (hc - (math.tan(angle) * (barge_x / 2)))
+        parrallel_right = (hc + (math.tan(angle) * (barge_x / 2)))
+
+        # Application of formulas
+        lctx = (barge_x / 3) * ((parrallel_right + (2 * parrallel_left)) / (parrallel_right + parrallel_left))
+        lctz = ((parrallel_right ** 2) + (parrallel_right * parrallel_left) + (parrallel_left ** 2)) / (
+                    3 * (parrallel_right + parrallel_left))
+
+        # Coordinates in the inclined system
+        ctx_rotate = (barge_x / 2) - lctx
+        ctz_rotate = hc - lctz
+
+        # --- Rotation of the system ---
+        ctx = (ctx_rotate * math.cos(-angle)) - (ctz_rotate * math.sin(-angle))
+        ctz = (ctx_rotate * math.sin(-angle)) + (ctz_rotate * math.cos(-angle))
+
+        return tuple([ctx, ctz])
+
+
+# --- Find the inclination of the barge ---
+def barge_inclination():
+    """
+    Binary search algorithm. It search the value of the angle of inclination of the barge.
+    :return: The value of the angle in radians
+    """
+    first = 0.0
+    last = maximum_inclination()
+    find = False
+
+    while first <= last and not find:
+        middle = (first + last) / 2
+        if center_trust(False, middle)[0] == center_gravity(False)[0]:
+            return middle
+        else:
+            if center_trust(False, middle)[0] < center_gravity(False)[0]:
+                first = middle + 0.00000000000000001
+
+            else:
+                last = middle - 0.00000000000000001

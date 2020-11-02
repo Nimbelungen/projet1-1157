@@ -1,9 +1,14 @@
 # ---- Variables ----
+# <name>_x = length
+# <name>_y = width
+# <name>_z = height
+# <name>_mass = mass
+
 # -- Barge --
-barge_x = 1  # longueur
-barge_y = 1  # Largeur
-barge_z = 1  # Hauteur
-barge_mass = 1  # Masse
+barge_x = 1
+barge_y = 1
+barge_z = 1
+barge_mass = 1
 
 # -- Grue --
 # First Piece

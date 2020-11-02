@@ -1,4 +1,6 @@
 import math
+
+
 # You will find in this file the most important formulas that we will use to solve the different physics exercises.
 
 
