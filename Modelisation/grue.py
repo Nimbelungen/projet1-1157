@@ -18,7 +18,8 @@ def submersion_height():
     :return: If hc < barge height : the distance hc (for submerged
     height), where hc is the length follow the submerged z-axis of the barge. Otherwise, False
     """
-    sub_volume = (mass_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass) / 1000
+    sub_volume = (
+                             mass_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + syringe_12_mass + syringe_23_mass) / 1000
     hc = sub_volume / (barge_x * barge_y)
     if hc < barge_z:
         return hc
@@ -69,6 +70,24 @@ def center_gravity(init):
     # Center gravity Barge
     barge_cg = (0, 0, dist_axe_x_center_gravity_barge)
 
-    # Center gravity grue
+    # Center gravity Grue
+    grue1_cg = (0, 0, (grue1_y / 2) + hd)
+    if init:
+        grue2_cg = (0, 0, "z")
+        grue3_cg = (0, 0, "z")
+    else:
+        grue2_cg = (0, 0, "z")
+        grue3_cg = (0, 0, "z")
 
-    # Center gravity mass
+    # Center gravity Mass
+    if init:
+        "position de la mass à prendre"
+    else:
+        "position de la masse à déposer"
+
+    # Center gravity Syringes todo: in function of the grue ?
+    "position de la première seringue ne change pas"
+    if init:
+        "position de la deuxième seringe"
+    else:
+        "position de la deuxième seringue après déplacement"

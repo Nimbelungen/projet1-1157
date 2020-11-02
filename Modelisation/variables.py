@@ -22,6 +22,16 @@ grue3_y = 1
 grue3_z = 1
 grue3_mass = 1
 
+# -- Syringes --
+# Syringe grue 1 -> 2
+syringe_12_x = 1
+syringe_12_z = 1
+syringe_12_mass = 1
+# Syringe grue 2 -> 3
+syringe_23_x = 1
+syringe_23_z = 1
+syringe_23_mass = 1
+
 # -- Masse --
 mass_x = 1
 mass_y = 1
