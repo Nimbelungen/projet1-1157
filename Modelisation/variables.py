@@ -5,46 +5,42 @@
 # <name>_mass = mass    [kg]
 
 # -- Barge --
-barge_x = 1
-barge_y = 1
-barge_z = 1
-barge_mass = 1
+barge_x = 1  # Barge length
+barge_y = 1  # Barge width
+barge_z = 1  # Barge height
+barge_mass = 1  # Barge mass
 
 # -- Grue --
 # First Piece
-grue1_x = 1
-grue1_z = 1
-grue1_mass = 1
+grue1_x = 1  # Grue First Piece length
+grue1_z = 1  # Grue First Piece height
+grue1_mass = 1  # Grue First Piece mass
+# Grue First Piece angle is always 0
 # Second Piece
-grue2_x = 1
-grue2_z = 1
-grue2_mass = 1
+grue2_x = 1  # Grue Second Piece length
+grue2_z = 1  # Grue Second Piece height
+grue2_mass = 1  # Grue Second Piece mass
 # Third Piece
-grue3_x = 1
-grue3_z = 1
-grue3_mass = 1
+grue3_x = 1  # Grue Third Piece length
+grue3_z = 1  # Grue Third Piece height
+grue3_mass = 1  # Grue Third Piece mass
 
 # -- Syringes --
-# Syringe grue 1 -> 2
-syringe_12_x = 1
-syringe_12_z = 1
-syringe_12_mass = 1
-# Syringe grue 2 -> 3
-syringe_23_x = 1
-syringe_23_z = 1
-syringe_23_mass = 1
+syringes_mass = 1
 
-# -- Masse --
-mass_x = 1
-mass_z = 1
-mass_mass = 1
+# -- Windturbine --
+windturbine_x = 1  # Windturbine length
+windturbine_position_x = 1  # Windturbine distance center - axes system x => cg_x at time = 0
+windturbine_z = 1  # Windturbine height
+windturbine_mass = 1  # Windturbine mass
 
 # -- Counter-weight --
 counterweight_x = 0
+counterweight_position_x = 0
 counterweight_y = 0
 counterweight_z = 0
 counterweight_mass = 0
 
 # -- Moving --
-moving_x = 1
-moving_z = 1
+moving_max_x = 1
+moving_max_z = 1
