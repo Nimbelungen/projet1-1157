@@ -18,29 +18,33 @@ mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass 
            counterweight_mass
 
 # Time
-step = 0.01  # dt [s]
+step = 1  # dt [s]
 end = 50.0  # [s]
 
 # Numpy list
-t = np.arange(0, end, step)
-d_x = np.arange(0, moving_max_x, (moving_max_x / len(t)))
-d_y = np.arange(0, moving_max_z, (moving_max_z / len(t)))
+t = np.arange(0, end, step)  # List of time
+d_x = np.arange(0, moving_max_x, (moving_max_x / len(t)))  # List of x displacement
+d_y = np.arange(0, moving_max_z, (moving_max_z / len(t)))  # List of x displacement
 
 # Syringes
-# todo: set this positions
 alpha = np.empty_like(t)  # Angle between pieces 1 and 2 of the grue
 beta = np.empty_like(t)  # Angle between pieces 2 and 3 of te barge
+syringes_length = np.arange(90, 155, (65 / len(t)))
 
 # Grue 2 length
 grue2_length = np.empty_like(t)
 
 
 # ---- Simulation Functions ----
-def angle_syringes_grue(time):
-
-
-# todo: link the time and the length of the syringes
-# todo: link the angles of the grue parts and the length of the syringes
+def angle_syringes_grue():
+    # todo: link the time and the length of the syringes
+    # todo: link the angles of the grue parts and the length of the syringes
+    # Necessary condition : moving_max_x <= grue2_length[t max] + grue3_x
+    if moving_max_x <= grue2_length[-1] + grue3_x:
+        pass
+    else:
+        print("REALITY ERROR: The Grue is too short")
+        raise
 
 
 # ---- Calculus Functions ---- Oder functions are in the 'formulas.py' file
@@ -97,7 +101,7 @@ def center_gravity(t):
     # -- Syringes --
 
     # -- Windturbine --
-    windturbine_cg = (windturbine_position_x, (windturbine_z / 2))  # todo add the x and y deplacment
+    windturbine_cg = (windturbine_position_x, (windturbine_z / 2))  # todo add the x and y displacement
 
     # -- Counterweight --
     counterweight_cg = (counterweight_position_x, (counterweight_y / 2))
