@@ -10,6 +10,9 @@ he Z axis is vertical (height)
 The origin is positioned in the middle of the barge along the X and Y axis and at water level along the Z axis. 
 """
 
+# ---- Calculus ----
+mass_sum = mass_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + syringe_12_mass + syringe_23_mass
+
 
 # ---- Calculus Functions ----
 # Oder functions are in the 'formulas.py' file
@@ -19,8 +22,7 @@ def submersion_height():
     :return: If hc < barge height : the distance hc (for submerged
     height), where hc is the length follow the submerged z-axis of the barge. Otherwise, False
     """
-    sub_volume = (
-                             mass_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + syringe_12_mass + syringe_23_mass) / 1000
+    sub_volume = mass_sum / 1000
     hc = sub_volume / (barge_x * barge_y)
     if hc < barge_z:
         return hc

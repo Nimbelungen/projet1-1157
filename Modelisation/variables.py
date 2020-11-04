@@ -1,8 +1,8 @@
 # ---- Variables ----
-# <name>_x = length
-# <name>_y = width
-# <name>_z = height
-# <name>_mass = mass
+# <name>_x = length [m]
+# <name>_y = width  [m]
+# <name>_z = height [m]
+# <name>_mass = mass    [kg]
 
 # -- Barge --
 barge_x = 1
