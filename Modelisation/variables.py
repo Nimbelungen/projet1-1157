@@ -39,6 +39,12 @@ mass_x = 1
 mass_z = 1
 mass_mass = 1
 
+# -- Counter-weight --
+counterweight_x = 0
+counterweight_y = 0
+counterweight_z = 0
+counterweight_mass = 0
+
 # -- Moving --
 moving_x = 1
 moving_z = 1

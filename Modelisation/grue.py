@@ -11,7 +11,7 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 """
 
 # ---- Calculus ----
-mass_sum = mass_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + syringe_12_mass + syringe_23_mass
+mass_sum = mass_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + syringe_12_mass + syringe_23_mass + counterweight_mass
 
 
 # ---- Calculus Functions ----
@@ -52,11 +52,11 @@ def maximum_inclination():
     return tuple([angle_max_x])
 
 
-def center_gravity(init):
+def center_gravity(t):
     """
     Calculate the center of gravity of a set of body's
-    :type init: bool
-    :param init: True if it's the initial situation. Otherwise, False
+    :type t: float
+    :param t:
     :return: A tuple with the coordinate along X- and Z-axis of the center of gravity of all the variable <name>_mass
     """
     hc = submersion_height()
@@ -68,7 +68,7 @@ def center_gravity(init):
 
     # Center gravity Grue
     grue1_cg = (0, (grue1_z / 2) + hd)
-    if init:
+    if t == 0:
         grue2_cg = (0, "z")
         grue3_cg = (0, "z")
     else:
@@ -76,17 +76,22 @@ def center_gravity(init):
         grue3_cg = (0, "z")
 
     # Center gravity Mass
-    if init:
-        "position de la mass à prendre"
+    if t == 0:
+        mass_cg = center_of_gravity_2d(mass_mass, (mass_x, mass_z))
     else:
         "position de la masse à déposer"
 
     # Center gravity Syringes todo: in function of the grue ?
     "position de la première seringue ne change pas"
-    if init:
+    if t == 0:
         "position de la deuxième seringe"
     else:
         "position de la deuxième seringue après déplacement"
+
+    # Center of gravity Counter-weight
+    if t == 0:
+        """Contre-poid en 0"""
+    else:
 
     return tuple(cgx, cgz)
 
