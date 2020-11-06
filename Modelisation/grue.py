@@ -167,12 +167,13 @@ def barge_inclination(time):
     Binary search algorithm. It search the value of the angle of inclination of the barge.
     :return: The value of the angle in radians
     """
-    first = 0
+    first = -math.pi / 2
     last = math.pi / 2  # todo: WARRING is the cause of some error
     find = False
 
     while first <= last and not find:
         middle = (first + last) / 2
+        # if center_trust(middle)[0] - center_gravity(time)[0] < 0.00000000000000001:
         if center_trust(middle)[0] - center_gravity(time)[0] == 0:
             return middle
         else:
@@ -181,6 +182,7 @@ def barge_inclination(time):
 
             else:
                 last = middle - 0.00000000000000001
+    return middle
 
 
 # ---- Simulation ----
@@ -222,6 +224,7 @@ def graphique_angles():
     plt.subplot(2, 1, 1)
     plt.plot(t, theta_rad, label="Thêta")
     plt.plot(t, max_incl_rad, label="Max angle", linestyle='dashed')
+    plt.plot(t, -max_incl_rad, label="Max angle", linestyle='dashed')
     plt.legend()
     plt.subplot(2, 1, 2)
     plt.plot(t, omega_rad, label="Omega")
@@ -234,6 +237,7 @@ def graphique_angles():
     plt.subplot(2, 1, 1)
     plt.plot(t, theta_deg, label="Thêta")
     plt.plot(t, max_incl_deg, label="Max angle", linestyle='dashed')
+    plt.plot(t, -max_incl_deg, label="Max angle", linestyle='dashed')
     plt.legend()
     plt.subplot(2, 1, 2)
     plt.plot(t, omega_deg, label="Omega")
