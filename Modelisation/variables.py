@@ -20,6 +20,7 @@ grue1_mass = 1  # Grue First Piece mass
 grue2_x = 1  # Grue Second Piece length
 grue2_z = 1  # Grue Second Piece height
 grue2_mass = 1  # Grue Second Piece mass
+grue2_angle_init = [0, 0]
 # Third Piece
 grue3_x = 1  # Grue Third Piece length
 grue3_z = 1  # Grue Third Piece height
@@ -27,6 +28,10 @@ grue3_mass = 1  # Grue Third Piece mass
 
 # -- Syringes --
 syringes_mass = 1
+syringes_d_grue1 = 1
+syringes_d_grue21 = 1
+syringes_d_grue22 = 1
+syringes_d_grue3 = 1
 
 # -- Windturbine --
 windturbine_x = 1  # Windturbine length
@@ -44,3 +49,6 @@ counterweight_mass = 0
 # -- Moving --
 moving_max_x = 1
 moving_max_z = 1
+
+# -- Others --
+I = 5  # Inertia

@@ -56,3 +56,18 @@ def degrees_to_radian(angle):
     :return: A float that is the angle in radian
     """
     return (angle * math.pi) / 180
+
+
+# Rotation
+def rotate_coord(coord, angle):
+    """
+    This function applies a rotation to a couple of points x, y
+    :type coord: tuple
+    :type angle: float IN RADIAN
+    :param coord: The x, y coordinates of the point in R ** 2
+    :param angle: The angle rotation
+    :return: a tuple witch is the coordinates pf the new point
+    """
+    x_prime = (math.cos(angle) * coord[0]) + (-math.sin(angle) * coord[1])
+    y_prime = (math.sin(angle) * coord[0]) + (math.cos(angle) * coord[1])
+    return tuple([x_prime, y_prime])

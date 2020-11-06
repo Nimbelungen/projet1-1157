@@ -14,37 +14,40 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 
 # ---- Calculus ----
 # Mass of the system
-mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + (2 * syringes_mass) + \
-           counterweight_mass
+mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + (
+            2 * syringes_mass) + counterweight_mass
 
 # Time
 step = 1  # dt [s]
 end = 50.0  # [s]
 
-# Numpy list
+# -- Numpy lists --
 t = np.arange(0, end, step)  # List of time
-d_x = np.arange(0, moving_max_x, (moving_max_x / len(t)))  # List of x displacement
-d_y = np.arange(0, moving_max_z, (moving_max_z / len(t)))  # List of x displacement
+theta = np.empty_like(t)
+omega = np.empty_like(t)
+E_k = np.empty_like(t)
 
-# Syringes
-alpha = np.empty_like(t)  # Angle between pieces 1 and 2 of the grue
-beta = np.empty_like(t)  # Angle between pieces 2 and 3 of te barge
-syringes_length = np.arange(90, 155, (65 / len(t)))
+# WARNING
 
-# Grue 2 length
-grue2_length = np.empty_like(t)
+grue2_angle = np.empty_like(t)
+grue3_angle = np.empty_like(t)
+
+windturbine_d_x = np.empty_like(t)
+windturbine_d_z = np.empty_like(t)
+windturbine_d_x_step = (moving_max_x - windturbine_position_x) / len(t)
+windturbine_d_z_step = (moving_max_z - windturbine_z) / len(t)
 
 
-# ---- Simulation Functions ----
-def angle_syringes_grue():
-    # todo: link the time and the length of the syringes
-    # todo: link the angles of the grue parts and the length of the syringes
-    # Necessary condition : moving_max_x <= grue2_length[t max] + grue3_x
-    if moving_max_x <= grue2_length[-1] + grue3_x:
-        pass
-    else:
-        print("REALITY ERROR: The Grue is too short")
-        raise
+def fill_array():
+    # todo: link this 2 lists
+    # Angle of the piece of grue
+
+    # Windturbine displacement
+    windturbine_d_x[-1] = moving_max_x
+    windturbine_d_z[-1] = moving_max_z
+    for j in range(len(t), -1, -1):
+        windturbine_d_x[j] = windturbine_d_x[j + 1] - windturbine_d_x_step
+        windturbine_d_z[j] = windturbine_d_x[j + 1] - windturbine_d_z_step
 
 
 # ---- Calculus Functions ---- Oder functions are in the 'formulas.py' file
@@ -84,27 +87,38 @@ def maximum_inclination():
     return tuple([angle_max_x])
 
 
-def center_gravity(t):
+def center_gravity(time):
     # -- Barge --
     hc = submersion_height()
     hb = (barge_z / 2) - hc
     barge_cg = (0, hb)
 
     # -- Grue --
-    # First Piece
+    # First Piece OK
     grue1_cg = (0, hb + (grue1_z / 2))
-    # Second Piece
+    # Second Piece OK
     grue2_cg_init = ((grue2_x / 2), (grue2_z / 2))
-    # todo: with the angle that produce the syringe
+    grue2_cg = rotate_coord(grue2_cg_init, grue2_angle[time])
+
     # Third Piece
+    grue3_cg_init = ((grue3_x / 2), (grue3_z / 2))
+    grue3_cg = rotate_coord(grue2_cg_init, grue3_angle[time])
 
     # -- Syringes --
+    # todo: there are now negligees
 
     # -- Windturbine --
-    windturbine_cg = (windturbine_position_x, (windturbine_z / 2))  # todo add the x and y displacement
+    windturbine_cg_init = (windturbine_position_x, (windturbine_z / 2))
+    windturbine_cg = (windturbine_cg_init[0] + windturbine_d_x[time], windturbine_cg_init[1] + windturbine_d_z[time])
 
     # -- Counterweight --
     counterweight_cg = (counterweight_position_x, (counterweight_y / 2))
+
+    # Center of gravity
+    cg = center_of_gravity_2d((barge_mass, barge_cg), (grue1_mass, grue1_cg), (grue2_mass, grue2_cg),
+                              (grue3_mass, grue3_cg), (windturbine_mass, windturbine_cg),
+                              (counterweight_mass, counterweight_cg))
+    return cg
 
 
 def center_trust(angle):
@@ -147,7 +161,7 @@ def center_trust(angle):
     return tuple([ctx, ctz])
 
 
-def barge_inclination():
+def barge_inclination(time):
     """
     Binary search algorithm. It search the value of the angle of inclination of the barge.
     :return: The value of the angle in radians
@@ -158,12 +172,25 @@ def barge_inclination():
 
     while first <= last and not find:
         middle = (first + last) / 2
-        if center_trust(False, middle)[0] == center_gravity(False)[0]:
+        if center_trust(middle)[0] == center_gravity(time)[0]:
             return middle
         else:
-            if center_trust(False, middle)[0] < center_gravity(False)[0]:
+            if center_trust(middle)[0] < center_gravity(time)[0]:
                 first = middle + 0.00000000000000001
 
             else:
                 last = middle - 0.00000000000000001
 
+
+# ---- Simulation ----
+def simulation():
+    # Fill theta list
+    for i in range(len(t)):
+        theta[i] = barge_inclination(t)
+    omega[0] = 0
+    # Fill omega list
+    for j in range(len(t) - 1):
+        omega[j + 1] = (theta[j + 1] - theta[j]) / step
+    # Fill E_k List
+    for k in range(len(t)):
+        E_k[k] = I * ((omega[k] ** 2) / 2)
