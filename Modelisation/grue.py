@@ -28,9 +28,9 @@ omega = np.empty_like(t)
 E_k = np.empty_like(t)
 
 # WARNING
-
 grue2_angle = np.empty_like(t)
 grue3_angle = np.empty_like(t)
+grue3_x = np.empty_like(t)  # todo: attention nom de la variable
 
 windturbine_d_x = np.empty_like(t)
 windturbine_d_z = np.empty_like(t)
@@ -96,20 +96,23 @@ def center_gravity(time):
     # -- Grue --
     # First Piece OK
     grue1_cg = (0, hb + (grue1_z / 2))
+
     # Second Piece OK
-    grue2_cg_init = ((grue2_x / 2), (grue2_z / 2))
+    grue2_cg_init = ((grue2_x / 2), (hb + (grue2_z / 2)))
     grue2_cg = rotate_coord(grue2_cg_init, grue2_angle[time])
 
-    # Third Piece
-    grue3_cg_init = ((grue3_x / 2), (grue3_z / 2))
+    # Third Piece OK
+    grue2_cg_init = (((math.cos(grue2_angle[time]) * grue2_x) + (grue3_x[time] / 2)),
+                     ((math.sin(grue2_angle[time]) * grue2_x) + (grue3_z[time] / 2)))
     grue3_cg = rotate_coord(grue2_cg_init, grue3_angle[time])
 
     # -- Syringes --
     # todo: there are now negligees
 
-    # -- Windturbine --
-    windturbine_cg_init = (windturbine_position_x, (windturbine_z / 2))
-    windturbine_cg = (windturbine_cg_init[0] + windturbine_d_x[time], windturbine_cg_init[1] + windturbine_d_z[time])
+    # -- Windturbine -- = Coordonnées du bout de la partie 3 de la grue
+    windturbine_cg_init = (((math.cos(grue2_angle[time]) * grue2_x) + (grue3_x[time])),
+                           ((math.sin(grue2_angle[time]) * grue2_x) + (grue3_z[time])))
+    windturbine_cg = rotate_coord(grue2_cg_init, grue3_angle[time])
 
     # -- Counterweight --
     counterweight_cg = (counterweight_position_x, (counterweight_y / 2))
