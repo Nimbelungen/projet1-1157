@@ -20,23 +20,17 @@ grue1_mass = 1  # Grue First Piece mass
 grue2_x = 1  # Grue Second Piece length
 grue2_z = 1  # Grue Second Piece height
 grue2_mass = 1  # Grue Second Piece mass
-grue2_angle_init = [0, 0]
+grue2_angle_value = [0, 0]
 # Third Piece
-grue3_x = 1  # Grue Third Piece length
+grue3_x_value = [1, 2]  # Grue Third Piece length
 grue3_z = 1  # Grue Third Piece height
 grue3_mass = 1  # Grue Third Piece mass
+grue3_angle_value = [0, 0]
 
 # -- Syringes --
-syringes_mass = 1
-syringes_d_grue1 = 1
-syringes_d_grue21 = 1
-syringes_d_grue22 = 1
-syringes_d_grue3 = 1
+#  todo: there are now negligees
 
 # -- Windturbine --
-windturbine_x = 1  # Windturbine length
-windturbine_position_x = 1  # Windturbine distance center - axes system x => cg_x at time = 0
-windturbine_z = 1  # Windturbine height
 windturbine_mass = 1  # Windturbine mass
 
 # -- Counter-weight --

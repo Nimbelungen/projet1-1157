@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 
 from Modelisation.variables import *
@@ -14,12 +15,11 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 
 # ---- Calculus ----
 # Mass of the system
-mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + (
-            2 * syringes_mass) + counterweight_mass
+mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + counterweight_mass
 
 # Time
 step = 1  # dt [s]
-end = 50.0  # [s]
+end = 60.0  # [s]
 
 # -- Numpy lists --
 t = np.arange(0, end, step)  # List of time
@@ -32,22 +32,18 @@ grue2_angle = np.empty_like(t)
 grue3_angle = np.empty_like(t)
 grue3_x = np.empty_like(t)  # todo: attention nom de la variable
 
-windturbine_d_x = np.empty_like(t)
-windturbine_d_z = np.empty_like(t)
-windturbine_d_x_step = (moving_max_x - windturbine_position_x) / len(t)
-windturbine_d_z_step = (moving_max_z - windturbine_z) / len(t)
-
 
 def fill_array():
-    # todo: link this 2 lists
-    # Angle of the piece of grue
-
-    # Windturbine displacement
-    windturbine_d_x[-1] = moving_max_x
-    windturbine_d_z[-1] = moving_max_z
-    for j in range(len(t), -1, -1):
-        windturbine_d_x[j] = windturbine_d_x[j + 1] - windturbine_d_x_step
-        windturbine_d_z[j] = windturbine_d_x[j + 1] - windturbine_d_z_step
+    grue2_angle[0] = grue2_angle_value[0]
+    grue3_angle[0] = grue3_angle_value[0]
+    grue3_x[0] = grue3_x_value[0]
+    step_grue2_angle = (grue2_angle_value[1] - grue2_angle_value[0]) / len(t)
+    step_grue3_angle = (grue3_angle_value[1] - grue3_angle_value[0]) / len(t)
+    step_grue3_x = (grue3_x_value[1] - grue3_x_value[0]) / len(t)
+    for i in range(1, len(t)):
+        grue2_angle[i] = grue2_angle[i - 1] + step_grue2_angle
+        grue3_angle[i] = grue3_angle[i - 1] + step_grue3_angle
+        grue3_x[i] = grue3_x[i - 1] + step_grue3_x
 
 
 # ---- Calculus Functions ---- Oder functions are in the 'formulas.py' file
@@ -112,7 +108,7 @@ def center_gravity(time):
     # -- Windturbine -- = Coordonnées du bout de la partie 3 de la grue
     windturbine_cg_init = (((math.cos(grue2_angle[time]) * grue2_x) + (grue3_x[time])),
                            ((math.sin(grue2_angle[time]) * grue2_x) + (grue3_z[time])))
-    windturbine_cg = rotate_coord(grue2_cg_init, grue3_angle[time])
+    windturbine_cg = rotate_coord(windturbine_cg_init, grue3_angle[time])
 
     # -- Counterweight --
     counterweight_cg = (counterweight_position_x, (counterweight_y / 2))
@@ -197,3 +193,17 @@ def simulation():
     # Fill E_k List
     for k in range(len(t)):
         E_k[k] = I * ((omega[k] ** 2) / 2)
+
+
+def graphique_angles():
+    plt.figure(1)
+
+    plt.subplot(2, 1, 1)
+    plt.plot(t, theta, label="Thêta")
+    plt.legend()
+
+    plt.subplot(2, 1, 2)
+    plt.plot(t, omega, label="Omega")
+    plt.legend()
+
+    plt.show()
