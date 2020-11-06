@@ -18,13 +18,15 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + counterweight_mass
 
 # Time
-step = 10  # dt [s]
+step = 1  # dt [s]
 end = 60.0  # [s]
 
 # -- Numpy lists --
 t = np.arange(0, end, step)  # List of time
-theta = np.empty_like(t)
-omega = np.empty_like(t)
+theta_rad = np.empty_like(t)
+theta_deg = np.empty_like(t)
+omega_rad = np.empty_like(t)
+omega_deg = np.empty_like(t)
 E_k = np.empty_like(t)
 
 # WARNING
@@ -53,8 +55,7 @@ def submersion_height():
     :return: If hc < barge height : the distance hc (for submerged
     height), where hc is the length follow the submerged z-axis of the barge. Otherwise, False
     """
-    sub_volume = mass_sum / 1000
-    hc = sub_volume / (barge_x * barge_y)
+    hc = mass_sum / (1000 * (barge_x * barge_y))
     if hc < barge_z:
         return hc
     else:
@@ -111,7 +112,8 @@ def center_gravity(time):
     windturbine_cg = rotate_coord(windturbine_cg_init, grue3_angle[time])
 
     # -- Counterweight --
-    counterweight_cg = (counterweight_position_x, (counterweight_y / 2))
+    counterweight_position_z = barge_z - hc
+    counterweight_cg = (counterweight_position_x, counterweight_position_z + (counterweight_y / 2))
 
     # Center of gravity
     cg = center_of_gravity_2d((barge_mass, barge_cg), (grue1_mass, grue1_cg), (grue2_mass, grue2_cg),
@@ -165,13 +167,13 @@ def barge_inclination(time):
     Binary search algorithm. It search the value of the angle of inclination of the barge.
     :return: The value of the angle in radians
     """
-    first = 0.0
-    last = 1
+    first = 0
+    last = math.pi / 2  # todo: WARRING is the cause of some error
     find = False
 
     while first <= last and not find:
         middle = (first + last) / 2
-        if center_trust(middle)[0] == center_gravity(time)[0]:
+        if center_trust(middle)[0] - center_gravity(time)[0] == 0:
             return middle
         else:
             if center_trust(middle)[0] < center_gravity(time)[0]:
@@ -183,34 +185,59 @@ def barge_inclination(time):
 
 # ---- Simulation ----
 def simulation():
-    # Fill theta list
+    # --- Theta list ---
+    # Rad
     for i in range(len(t)):
-        theta[i] = barge_inclination(i)
-    omega[0] = 0
-    # Fill omega list
+        theta_rad[i] = barge_inclination(i)
+    # Deg
+    for i_2 in range(len(t)):
+        theta_deg[i_2] = rad_to_degrees(theta_rad[i_2])
+
+    # --- Omega list ---
+    # Rad
+    omega_rad[0] = 0
     for j in range(len(t) - 1):
-        omega[j + 1] = (theta[j + 1] - theta[j]) / step
+        omega_rad[j + 1] = (theta_rad[j + 1] - theta_rad[j]) / step
+    # Deg
+    for j_2 in range(len(t)):
+        omega_deg[j_2] = rad_to_degrees(omega_rad[j_2])
+
     # Fill E_k List
     for k in range(len(t)):
-        E_k[k] = I * ((omega[k] ** 2) / 2)
+        E_k[k] = I * ((omega_rad[k] ** 2) / 2)
 
 
 def graphique_angles():
-    max_incl = np.empty_like(t)
+    # --- Max inclination value ---
+    max_incl_rad = np.empty_like(t)
+    max_incl_deg = np.empty_like(t)
     for i in range(len(t)):
-        max_incl[i] = maximum_inclination()
+        max_incl_rad[i] = maximum_inclination()
+    for i_2 in range(len(t)):
+        max_incl_deg[i_2] = rad_to_degrees(maximum_inclination())
 
+    # --- Figure 1 : Radians ---
     plt.figure(1)
-
+    plt.suptitle("Inclinaison et vitesse anglulaire [rad] et [rad/s]")
     plt.subplot(2, 1, 1)
-    plt.plot(t, theta, label="Thêta")
-    plt.plot(t, max_incl, label="Max angle", linestyle='dashed')
+    plt.plot(t, theta_rad, label="Thêta")
+    plt.plot(t, max_incl_rad, label="Max angle", linestyle='dashed')
     plt.legend()
-
     plt.subplot(2, 1, 2)
-    plt.plot(t, omega, label="Omega")
+    plt.plot(t, omega_rad, label="Omega")
     plt.legend()
+    plt.show()
 
+    # --- Figure 2 : Degrees ---
+    plt.figure(2)
+    plt.suptitle("Inclinaison et vitesse anglulaire [°] et [°/s]")
+    plt.subplot(2, 1, 1)
+    plt.plot(t, theta_deg, label="Thêta")
+    plt.plot(t, max_incl_deg, label="Max angle", linestyle='dashed')
+    plt.legend()
+    plt.subplot(2, 1, 2)
+    plt.plot(t, omega_deg, label="Omega")
+    plt.legend()
     plt.show()
 
 
@@ -221,9 +248,11 @@ print("Submertion height : {}m".format(submersion_height()))
 print("Grue 2 angle", grue2_angle)
 print("Grue 3 angle", grue3_angle)
 print("Valeur de grue 3", grue3_x)
+print("\n")
+print(barge_inclination(0))
 print("\n\n\n")
 
 simulation()
-print("Valeurs de theta", theta)
-print("Valeurs de omega", omega)
+print("Valeurs de theta", theta_rad)
+print("Valeurs de omega", omega_rad)
 graphique_angles()

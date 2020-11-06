@@ -7,10 +7,10 @@ from formulas import *
 # <name>_mass = mass    [kg]
 
 # -- Barge --
-barge_x = 0.5  # Barge length
-barge_y = 0.5  # Barge width
-barge_z = 0.1  # Barge height
-barge_mass = 0.5  # Barge mass
+barge_x = 0.6  # Barge length
+barge_y = 0.6  # Barge width
+barge_z = 0.3  # Barge height
+barge_mass = 0.3  # Barge mass
 
 # -- Grue --
 # First Piece
@@ -33,14 +33,15 @@ grue3_angle_value = [degrees_to_radian(-60), degrees_to_radian(0)]
 #  todo: there are now negligees
 
 # -- Windturbine --
-windturbine_mass = 0.1  # Windturbine mass
+windturbine_mass = 0.5  # Windturbine mass
 
 # -- Counter-weight --
-counterweight_x = 0
-counterweight_position_x = 0
-counterweight_y = 0
+counterweight_x = 0.1
+counterweight_position_x = - 0.1
+counterweight_y = 0.1
+counterweight_position_z = 0
 counterweight_z = 0
-counterweight_mass = 0
+counterweight_mass = 2
 
 # -- Moving -- todo not now used
 moving_max_x = 1
