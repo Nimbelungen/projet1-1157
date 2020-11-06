@@ -18,7 +18,7 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + counterweight_mass
 
 # Time
-step = 1  # dt [s]
+step = 10  # dt [s]
 end = 60.0  # [s]
 
 # -- Numpy lists --
@@ -99,7 +99,7 @@ def center_gravity(time):
 
     # Third Piece OK
     grue2_cg_init = (((math.cos(grue2_angle[time]) * grue2_x) + (grue3_x[time] / 2)),
-                     ((math.sin(grue2_angle[time]) * grue2_x) + (grue3_z[time] / 2)))
+                     ((math.sin(grue2_angle[time]) * grue2_x) + (grue3_z / 2)))
     grue3_cg = rotate_coord(grue2_cg_init, grue3_angle[time])
 
     # -- Syringes --
@@ -107,7 +107,7 @@ def center_gravity(time):
 
     # -- Windturbine -- = Coordonnées du bout de la partie 3 de la grue
     windturbine_cg_init = (((math.cos(grue2_angle[time]) * grue2_x) + (grue3_x[time])),
-                           ((math.sin(grue2_angle[time]) * grue2_x) + (grue3_z[time])))
+                           ((math.sin(grue2_angle[time]) * grue2_x) + grue3_z))
     windturbine_cg = rotate_coord(windturbine_cg_init, grue3_angle[time])
 
     # -- Counterweight --
@@ -166,7 +166,7 @@ def barge_inclination(time):
     :return: The value of the angle in radians
     """
     first = 0.0
-    last = maximum_inclination()
+    last = 1
     find = False
 
     while first <= last and not find:
@@ -180,11 +180,12 @@ def barge_inclination(time):
             else:
                 last = middle - 0.00000000000000001
 
+
 # ---- Simulation ----
 def simulation():
     # Fill theta list
     for i in range(len(t)):
-        theta[i] = barge_inclination(t)
+        theta[i] = barge_inclination(i)
     omega[0] = 0
     # Fill omega list
     for j in range(len(t) - 1):
@@ -210,8 +211,14 @@ def graphique_angles():
 
 # --- Lunch program
 fill_array()
-simulation()
-print("Inclinaison max : {}rad".format(maximum_inclination()))
+print("Inclinaison max : {}rad ou {}°".format(maximum_inclination(), rad_to_degrees(maximum_inclination())))
 print("Submertion height : {}m".format(submersion_height()))
-print(theta)
-print(omega)
+print("Grue 2 angle", grue2_angle)
+print("Grue 3 angle", grue3_angle)
+print("Valeur de grue 3", grue3_x)
+print("\n\n\n")
+
+simulation()
+print("Valeurs de theta", theta)
+print("Valeurs de omega", omega)
+graphique_angles()

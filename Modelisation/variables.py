@@ -19,7 +19,7 @@ grue1_z = 0.05  # Grue First Piece height
 grue1_mass = 0.05  # Grue First Piece mass
 # Grue First Piece angle is always 0
 # Second Piece
-grue2_x = 350  # Grue Second Piece length
+grue2_x = 0.350  # Grue Second Piece length
 grue2_z = 0.05  # Grue Second Piece height
 grue2_mass = 0.35  # Grue Second Piece mass
 grue2_angle_value = [degrees_to_radian(150), degrees_to_radian(0)]
