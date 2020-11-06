@@ -80,7 +80,7 @@ def maximum_inclination():
         angle_max_x = angle_max2_x
 
     # --- Return ---
-    return tuple([angle_max_x])
+    return angle_max_x
 
 
 def center_gravity(time):
@@ -180,7 +180,6 @@ def barge_inclination(time):
             else:
                 last = middle - 0.00000000000000001
 
-
 # ---- Simulation ----
 def simulation():
     # Fill theta list
@@ -207,3 +206,12 @@ def graphique_angles():
     plt.legend()
 
     plt.show()
+
+
+# --- Lunch program
+fill_array()
+simulation()
+print("Inclinaison max : {}rad".format(maximum_inclination()))
+print("Submertion height : {}m".format(submersion_height()))
+print(theta)
+print(omega)
