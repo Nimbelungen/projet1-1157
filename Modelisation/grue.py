@@ -196,10 +196,15 @@ def simulation():
 
 
 def graphique_angles():
+    max_incl = np.empty_like(t)
+    for i in range(len(t)):
+        max_incl[i] = maximum_inclination()
+
     plt.figure(1)
 
     plt.subplot(2, 1, 1)
     plt.plot(t, theta, label="Thêta")
+    plt.plot(t, max_incl, label="Max angle", linestyle='dashed')
     plt.legend()
 
     plt.subplot(2, 1, 2)
