@@ -323,7 +323,7 @@ def graph_energy():
     plt.show()
 
 
-# --- Lunch program
+# --- Lunch program ---
 fill_array()
 print("Inclinaison max : {}rad ou {}°".format(maximum_inclination(), rad_to_degrees(maximum_inclination())))
 print("Submertion height : {}m".format(submersion_height()))
