@@ -14,7 +14,7 @@ barge_mass = 0.3  # Barge mass
 
 # -- Grue --
 # First Piece
-grue1_x = 0.1  # Grue First Piece length
+grue1_x = 0.15  # Grue First Piece length
 grue1_z = 0.05  # Grue First Piece height
 grue1_mass = 0.05  # Grue First Piece mass
 # Grue First Piece angle is always 0
@@ -49,3 +49,4 @@ moving_max_z = 1
 
 # -- Others --
 I = 0.00001  # Inertia
+g = 9.81  # [m / s²]

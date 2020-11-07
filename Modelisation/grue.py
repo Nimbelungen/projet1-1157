@@ -28,6 +28,7 @@ theta_deg = np.empty_like(t)
 omega_rad = np.empty_like(t)
 omega_deg = np.empty_like(t)
 E_k = np.empty_like(t)
+E_g = np.empty_like(t)
 
 # WARNING
 grue2_angle = np.empty_like(t)
@@ -208,8 +209,12 @@ def simulation():
     for k in range(len(t)):
         E_k[k] = I * ((omega_rad[k] ** 2) / 2)
 
+    # Fill E_g List
+    for l in range(len(t)):
+        E_g[l] = mass_sum * g * center_gravity(l)[1]
 
-def graphique_angles():
+
+def graph_angles():
     # --- Max inclination value ---
     max_incl_rad = np.empty_like(t)
     max_incl_deg = np.empty_like(t)
@@ -245,10 +250,21 @@ def graphique_angles():
     plt.show()
 
 
-def graphique_energy():
+def graph_energy():
     plt.figure(3)
     plt.suptitle("Energie [J]")
+    plt.subplot(2, 1, 1)
     plt.plot(t, E_k, label="Énergie cinétique")
+    plt.legend()
+    plt.subplot(2, 1, 2)
+    plt.plot(t, E_g, label="Énergie gravitationnel")
+    plt.legend()
+    plt.show()
+
+    plt.figure(4)
+    plt.suptitle("Energie [J]")
+    plt.plot(t, E_k, label="Énergie cinétique")
+    plt.plot(t, E_g, label="Énergie gravitationnel")
     plt.legend()
     plt.show()
 
@@ -257,15 +273,10 @@ def graphique_energy():
 fill_array()
 print("Inclinaison max : {}rad ou {}°".format(maximum_inclination(), rad_to_degrees(maximum_inclination())))
 print("Submertion height : {}m".format(submersion_height()))
-print("Grue 2 angle", grue2_angle)
-print("Grue 3 angle", grue3_angle)
-print("Valeur de grue 3", grue3_x)
 print("\n")
 print(barge_inclination(0))
 print("\n\n\n")
 
 simulation()
-print("Valeurs de theta", theta_rad)
-print("Valeurs de omega", omega_rad)
-graphique_angles()
-graphique_energy()
+graph_angles()
+graph_energy()
