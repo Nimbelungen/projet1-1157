@@ -7,8 +7,8 @@ from formulas import *
 # <name>_mass = mass    [kg]
 
 # -- Barge --
-barge_x = 0.6  # Barge length
-barge_y = 0.6  # Barge width
+barge_x = 0.5  # Barge length
+barge_y = 0.5  # Barge width
 barge_z = 0.3  # Barge height
 barge_mass = 0.3  # Barge mass
 
@@ -24,7 +24,7 @@ grue2_z = 0.05  # Grue Second Piece height
 grue2_mass = 0.35  # Grue Second Piece mass
 grue2_angle_value = [degrees_to_radian(150), degrees_to_radian(0)]
 # Third Piece
-grue3_x_value = [0.3, 0.5]  # Grue Third Piece length
+grue3_x_value = [0.3, 0.4]  # Grue Third Piece length
 grue3_z = 0.05  # Grue Third Piece height
 grue3_mass = 0.6  # Grue Third Piece mass
 grue3_angle_value = [degrees_to_radian(-60), degrees_to_radian(0)]
@@ -41,11 +41,11 @@ counterweight_position_x = - 0.1
 counterweight_y = 0.1
 counterweight_position_z = 0
 counterweight_z = 0
-counterweight_mass = 2
+counterweight_mass = 4
 
 # -- Moving -- todo not now used
 moving_max_x = 1
 moving_max_z = 1
 
 # -- Others --
-I = 5  # Inertia
+I = 0.00001  # Inertia

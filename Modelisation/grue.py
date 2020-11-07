@@ -18,7 +18,7 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + counterweight_mass
 
 # Time
-step = 1  # dt [s]
+step = 0.1  # dt [s]
 end = 60.0  # [s]
 
 # -- Numpy lists --
@@ -173,7 +173,7 @@ def barge_inclination(time):
 
     while first <= last and not find:
         middle = (first + last) / 2
-        # if center_trust(middle)[0] - center_gravity(time)[0] < 0.00000000000000001:
+        # if abs(center_trust(middle)[0] - center_gravity(time)[0]) < 0.0000000000000001:
         if center_trust(middle)[0] - center_gravity(time)[0] == 0:
             return middle
         else:
@@ -197,7 +197,7 @@ def simulation():
 
     # --- Omega list ---
     # Rad
-    omega_rad[0] = 0
+    omega_rad[0] = None
     for j in range(len(t) - 1):
         omega_rad[j + 1] = (theta_rad[j + 1] - theta_rad[j]) / step
     # Deg
@@ -245,6 +245,14 @@ def graphique_angles():
     plt.show()
 
 
+def graphique_energy():
+    plt.figure(3)
+    plt.suptitle("Energie [J]")
+    plt.plot(t, E_k, label="Énergie cinétique")
+    plt.legend()
+    plt.show()
+
+
 # --- Lunch program
 fill_array()
 print("Inclinaison max : {}rad ou {}°".format(maximum_inclination(), rad_to_degrees(maximum_inclination())))
@@ -260,3 +268,4 @@ simulation()
 print("Valeurs de theta", theta_rad)
 print("Valeurs de omega", omega_rad)
 graphique_angles()
+graphique_energy()
