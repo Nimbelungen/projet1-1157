@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from tabulate import tabulate
 
 from Modelisation.variables import *
 from formulas import *
@@ -206,6 +207,7 @@ def barge_inclination(time):
     :param time: Time. This is the index in the 'np' lists. These lists have been completed by the function fill_array()
     :return: The value of the angle in radians
     """
+    global middle
     first = -math.pi / 2
     last = math.pi / 2  # todo: WARRING is the cause of some error
     find = False
@@ -324,13 +326,16 @@ def graph_energy():
 
 
 # --- Lunch program ---
+# -- Simulation and graphs
 fill_array()
-print("Inclinaison max : {}rad ou {}°".format(maximum_inclination(), rad_to_degrees(maximum_inclination())))
-print("Submertion height : {}m".format(submersion_height()))
-print("\n")
-print(barge_inclination(0))
-print("\n\n\n")
-
 simulation()
 graph_angles()
 graph_energy()
+# -- Print --
+print("Simulation of the grue - group 11.57")
+print(tabulate([["Information's about", "Radians", "Degrees"],
+                ["Maximum Inclination", maximum_inclination(), rad_to_degrees(maximum_inclination())],
+                ["Departure Inclination", barge_inclination(0), rad_to_degrees(barge_inclination(0))],
+                ["Final Inclination", barge_inclination(-1), rad_to_degrees(barge_inclination(-1))]],
+               headers="firstrow"))
+print("Submersion Height = {}m".format(submersion_height()))
