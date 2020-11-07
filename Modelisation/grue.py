@@ -15,7 +15,8 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 
 # ---- Calculus ----
 # -- Mass of the system --
-mass_sum = barge_mass + grue1_mass + grue2_mass + grue3_mass + grue4_mass + grapple_mass + windturbine_mass + counterweight_mass
+mass_sum = barge_mass + grue1_mass + grue2_mass + grue3_mass + grue4_mass + grapple_mass + windturbine_mass + \
+           counterweight_mass
 
 # -- Time --
 step = 0.1  # dt [s]
@@ -255,8 +256,8 @@ def simulation():
         E_k[k] = I * ((omega_rad[k] ** 2) / 2)
 
     # Fill E_g List
-    for l in range(len(t)):
-        E_g[l] = mass_sum * g * center_gravity(l)[1]
+    for m in range(len(t)):
+        E_g[m] = mass_sum * g * center_gravity(m)[1]
 
 
 def graph_angles():
