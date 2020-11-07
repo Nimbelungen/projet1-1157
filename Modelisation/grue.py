@@ -188,7 +188,7 @@ def barge_inclination(time):
 
 # ---- Simulation ----
 def simulation():
-    # --- Theta list ---
+    # --- Theta lists ---
     # Rad
     for i in range(len(t)):
         theta_rad[i] = barge_inclination(i)
@@ -196,7 +196,7 @@ def simulation():
     for i_2 in range(len(t)):
         theta_deg[i_2] = rad_to_degrees(theta_rad[i_2])
 
-    # --- Omega list ---
+    # --- Omega lists ---
     # Rad
     omega_rad[0] = None
     for j in range(len(t) - 1):
@@ -205,6 +205,7 @@ def simulation():
     for j_2 in range(len(t)):
         omega_deg[j_2] = rad_to_degrees(omega_rad[j_2])
 
+    # --- Energy lists ---
     # Fill E_k List
     for k in range(len(t)):
         E_k[k] = I * ((omega_rad[k] ** 2) / 2)
