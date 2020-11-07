@@ -25,7 +25,15 @@ grue2_angle_value = [degrees_to_radian(150), degrees_to_radian(0)]  # [deg] Angl
 grue3_x_value = [0.3, 0.4]  # [m] Grue Third Piece start and finish length
 grue3_z = 0.05  # [m] Grue Third Piece height
 grue3_mass = 0.6  # [kg] Grue Third Piece mass
-grue3_angle_value = [degrees_to_radian(-60), degrees_to_radian(0)]  # [deg] Angle of departure and arrival of this piece
+grue3_angle_value = [degrees_to_radian(-60),
+                     degrees_to_radian(-20)]  # [deg] Angle of departure and arrival of this piece
+# of grue. These angles are expressed as a function of the horizontal
+
+# - Fourth Piece -
+grue4_x = 0.1  # [m] Grue Fourth Piece height
+grue4_z = 0.05  # [m] Grue Fourth Piece height
+grue4_mass = 0.05  # [kg] Grue Fourth Piece mass
+grue4_angle_value = [degrees_to_radian(-20), degrees_to_radian(0)]  # [deg] Angle of departure and arrival of this piece
 # of grue. These angles are expressed as a function of the horizontal
 
 # - Grapple -

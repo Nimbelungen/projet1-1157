@@ -15,7 +15,7 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 
 # ---- Calculus ----
 # -- Mass of the system --
-mass_sum = barge_mass + grue1_mass + grue2_mass + grue3_mass + grapple_mass + windturbine_mass + counterweight_mass
+mass_sum = barge_mass + grue1_mass + grue2_mass + grue3_mass + grue4_mass + grapple_mass + windturbine_mass + counterweight_mass
 
 # -- Time --
 step = 0.1  # dt [s]
@@ -33,6 +33,7 @@ E_g = np.empty_like(t)  # [J] List of gravitational energy
 # -- Moving of the grue --
 grue2_angle = np.empty_like(t)  # [rad] List of angles between grue piece 1 and grue piece 2
 grue3_angle = np.empty_like(t)  # [rad] List of angles between grue piece 2 and grue piece 3
+grue4_angle = np.empty_like(t)  # [rad] List of angles between grue piece 3 and grue piece 4
 grue3_x = np.empty_like(t)  # [m] List of length of grue piece 3
 
 
@@ -43,13 +44,16 @@ def fill_array():
     """
     grue2_angle[0] = grue2_angle_value[0]
     grue3_angle[0] = grue3_angle_value[0]
+    grue4_angle[0] = grue4_angle_value[0]
     grue3_x[0] = grue3_x_value[0]
     step_grue2_angle = (grue2_angle_value[1] - grue2_angle_value[0]) / len(t)
     step_grue3_angle = (grue3_angle_value[1] - grue3_angle_value[0]) / len(t)
+    step_grue4_angle = (grue4_angle_value[1] - grue4_angle_value[0]) / len(t)
     step_grue3_x = (grue3_x_value[1] - grue3_x_value[0]) / len(t)
     for i in range(len(t) - 1):
         grue2_angle[i + 1] = grue2_angle[i] + step_grue2_angle
         grue3_angle[i + 1] = grue3_angle[i] + step_grue3_angle
+        grue4_angle[i + 1] = grue4_angle[i] + step_grue4_angle
         grue3_x[i + 1] = grue3_x[i] + step_grue3_x
 
 
@@ -102,34 +106,43 @@ def center_gravity(time):
     barge_cg = (0, hb)
 
     # -- Grue --
-    # First Piece OK
+    # First Piece
     grue1_cg = (0, hb + (grue1_z / 2))
 
-    # Second Piece OK
+    # Second Piece
     grue2_cg_init = ((grue2_x / 2), (hb + (grue2_z / 2)))
     grue2_cg = rotate_coord(grue2_cg_init, grue2_angle[time])
 
-    # Third Piece OK
+    # Third Piece
     grue2_cg_init = (((math.cos(grue2_angle[time]) * grue2_x) + (grue3_x[time] / 2)),
-                     ((math.sin(grue2_angle[time]) * grue2_x) + (grue3_z / 2)))
+                     (grue1_x + hb + (math.sin(grue2_angle[time]) * grue2_x) + (grue3_z / 2)))
     grue3_cg = rotate_coord(grue2_cg_init, grue3_angle[time])
+
+    # Fourth Piece
+    grue4_cg_init = (
+        ((math.cos(grue2_angle[time]) * grue2_x) + (math.cos(grue3_angle[time]) * grue3_x[time]) + (grue4_x / 2)),
+        (grue1_x + hb + (math.sin(grue2_angle[time]) * grue2_x) + (
+                math.sin(grue3_angle[time]) * grue3_x[time]) + (grue4_z / 2)))
+    grue4_cg = rotate_coord(grue4_cg_init, grue4_angle[time])
 
     # -- Syringes --
     # todo: there are now negligees
 
     # -- Windturbine -- = Coordonnées du bout de la partie 3 de la grue
-    windturbine_cg_init = (((math.cos(grue2_angle[time]) * grue2_x) + (grue3_x[time])),
-                           ((math.sin(grue2_angle[time]) * grue2_x) + grue3_z))
-    windturbine_cg = rotate_coord(windturbine_cg_init, grue3_angle[time])
+    windturbine_cg_init = (
+        ((math.cos(grue2_angle[time]) * grue2_x) + (math.cos(grue3_angle[time]) * grue3_x[time]) + grue4_x),
+        (grue1_x + hb + (math.sin(grue2_angle[time]) * grue2_x) + (
+                math.sin(grue3_angle[time]) * grue3_x[time]) + grue4_z))
+    windturbine_cg = rotate_coord(windturbine_cg_init, grue4_angle[time])
 
     # -- Counterweight --
     counterweight_position_z = barge_z - hc
     counterweight_cg = (
-    counterweight_position_x + (counterweight_x / 2), counterweight_position_z + (counterweight_y / 2))
+        counterweight_position_x + (counterweight_x / 2), counterweight_position_z + (counterweight_y / 2))
 
     # Center of gravity
     cg = center_of_gravity_2d((barge_mass, barge_cg), (grue1_mass, grue1_cg), (grue2_mass, grue2_cg),
-                              (grue3_mass, grue3_cg), (windturbine_mass, windturbine_cg),
+                              (grue3_mass, grue3_cg), (grue4_mass, grue4_cg), (windturbine_mass, windturbine_cg),
                               (counterweight_mass, counterweight_cg))
     return cg
 
@@ -198,8 +211,8 @@ def barge_inclination(time):
 
     while first <= last and not find:
         middle = (first + last) / 2
-        # if abs(center_trust(middle)[0] - center_gravity(time)[0]) < 0.0000000000000001:
-        if center_trust(middle)[0] - center_gravity(time)[0] == 0:
+        if abs(center_trust(middle)[0] - center_gravity(time)[0]) < 0.0000000000000001:
+            # if center_trust(middle)[0] - center_gravity(time)[0] == 0:
             return middle
         else:
             if center_trust(middle)[0] < center_gravity(time)[0]:
