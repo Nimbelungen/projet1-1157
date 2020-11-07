@@ -14,47 +14,51 @@ The origin is positioned in the middle of the barge along the X and Y axis and a
 """
 
 # ---- Calculus ----
-# Mass of the system
-mass_sum = windturbine_mass + barge_mass + grue1_mass + grue2_mass + grue3_mass + counterweight_mass
+# -- Mass of the system --
+mass_sum = barge_mass + grue1_mass + grue2_mass + grue3_mass + grapple_mass + windturbine_mass + counterweight_mass
 
-# Time
+# -- Time --
 step = 0.1  # dt [s]
-end = 60.0  # [s]
+end = 100.0  # [s]
 
 # -- Numpy lists --
-t = np.arange(0, end, step)  # List of time
-theta_rad = np.empty_like(t)
-theta_deg = np.empty_like(t)
-omega_rad = np.empty_like(t)
-omega_deg = np.empty_like(t)
-E_k = np.empty_like(t)
-E_g = np.empty_like(t)
+t = np.arange(0, end, step)  # [s] List of time
+theta_rad = np.empty_like(t)  # [rad] List of Theta values
+theta_deg = np.empty_like(t)  # [deg] List of theta value in degrees
+omega_rad = np.empty_like(t)  # [rad/s] List of omega values
+omega_deg = np.empty_like(t)  # [deg/s] List of omega values in degrees / seconds
+E_k = np.empty_like(t)  # [J] List of kinetic energy values
+E_g = np.empty_like(t)  # [J] List of gravitational energy
 
-# WARNING
-grue2_angle = np.empty_like(t)
-grue3_angle = np.empty_like(t)
-grue3_x = np.empty_like(t)  # todo: attention nom de la variable
+# -- Moving of the grue --
+grue2_angle = np.empty_like(t)  # [rad] List of angles between grue piece 1 and grue piece 2
+grue3_angle = np.empty_like(t)  # [rad] List of angles between grue piece 2 and grue piece 3
+grue3_x = np.empty_like(t)  # [m] List of length of grue piece 3
 
 
 def fill_array():
+    """
+    This function fills the lists of angles and lengths of the crane.
+    :return: Nothing, it only modifies variables
+    """
     grue2_angle[0] = grue2_angle_value[0]
     grue3_angle[0] = grue3_angle_value[0]
     grue3_x[0] = grue3_x_value[0]
     step_grue2_angle = (grue2_angle_value[1] - grue2_angle_value[0]) / len(t)
     step_grue3_angle = (grue3_angle_value[1] - grue3_angle_value[0]) / len(t)
     step_grue3_x = (grue3_x_value[1] - grue3_x_value[0]) / len(t)
-    for i in range(1, len(t)):
-        grue2_angle[i] = grue2_angle[i - 1] + step_grue2_angle
-        grue3_angle[i] = grue3_angle[i - 1] + step_grue3_angle
-        grue3_x[i] = grue3_x[i - 1] + step_grue3_x
+    for i in range(len(t) - 1):
+        grue2_angle[i + 1] = grue2_angle[i] + step_grue2_angle
+        grue3_angle[i + 1] = grue3_angle[i] + step_grue3_angle
+        grue3_x[i + 1] = grue3_x[i] + step_grue3_x
 
 
 # ---- Calculus Functions ---- Oder functions are in the 'formulas.py' file
 def submersion_height():
     """
     Calculate the submerged height of the barge
-    :return: If hc < barge height : the distance hc (for submerged
-    height), where hc is the length follow the submerged z-axis of the barge. Otherwise, False
+    :return: If hc < barge height : the distance hc (for submerged height), where hc is the length follow the submerged
+    z-axis of the barge. Otherwise, False
     """
     hc = mass_sum / (1000 * (barge_x * barge_y))
     if hc < barge_z:
@@ -86,6 +90,12 @@ def maximum_inclination():
 
 
 def center_gravity(time):
+    """
+    This function calculates the coordinates of the center of gravity of the whole grue as a function of time.
+    :type time: int
+    :param time: Time. This is the index in the 'np' lists. These lists have been completed by the function fill_array()
+    :return: A tuple that is the coordinate along the x and z axis of the center of gravity
+    """
     # -- Barge --
     hc = submersion_height()
     hb = (barge_z / 2) - hc
@@ -114,7 +124,8 @@ def center_gravity(time):
 
     # -- Counterweight --
     counterweight_position_z = barge_z - hc
-    counterweight_cg = (counterweight_position_x, counterweight_position_z + (counterweight_y / 2))
+    counterweight_cg = (
+    counterweight_position_x + (counterweight_x / 2), counterweight_position_z + (counterweight_y / 2))
 
     # Center of gravity
     cg = center_of_gravity_2d((barge_mass, barge_cg), (grue1_mass, grue1_cg), (grue2_mass, grue2_cg),
@@ -125,7 +136,7 @@ def center_gravity(time):
 
 def center_trust(angle):
     """
-    Calculate the coordinate of the center of trust of a trapezium if init == False
+    Calculate the coordinate of the center of trust of the barge
     :type angle: float
     :param angle: The angle of inclination that the barge undergoes, changing the coordinate system and causing the
     submerged shape change.
@@ -163,9 +174,22 @@ def center_trust(angle):
     return tuple([ctx, ctz])
 
 
+def underwater_volume_mass(angle):  # todo: continue this function
+    #  area of the trapeze times the width of the barge
+    hc = submersion_height()
+    parrallel_left = (hc - (math.tan(angle) * (barge_x / 2)))
+    parrallel_right = (hc + (math.tan(angle) * (barge_x / 2)))
+    area = ((parrallel_left * parrallel_right) * hc) / 2
+    volume = area * barge_y
+
+    return volume
+
+
 def barge_inclination(time):
     """
     Binary search algorithm. It search the value of the angle of inclination of the barge.
+    :type time: int
+    :param time: Time. This is the index in the 'np' lists. These lists have been completed by the function fill_array()
     :return: The value of the angle in radians
     """
     first = -math.pi / 2
@@ -188,6 +212,13 @@ def barge_inclination(time):
 
 # ---- Simulation ----
 def simulation():
+    """
+    This function completes the following lists (applying a binary search for angles)=
+    - theta_rad and theta_deg \n
+    - omega_rad and omega_deg
+    - Energy : E_k, E_g and E_im
+    :return: Nothing, it only modifies variables
+    """
     # --- Theta lists ---
     # Rad
     for i in range(len(t)):
@@ -216,6 +247,10 @@ def simulation():
 
 
 def graph_angles():
+    """
+    This function creates the omega and theta graphs.
+    :return: 2 graphs: the fist in radians and the second in degrees
+    """
     # --- Max inclination value ---
     max_incl_rad = np.empty_like(t)
     max_incl_deg = np.empty_like(t)
@@ -252,6 +287,10 @@ def graph_angles():
 
 
 def graph_energy():
+    """
+    This function creates the graph of energy
+    :return: 2 graph, one with the 3 lines and another were the lines are separate
+    """
     plt.figure(3)
     plt.suptitle("Energie [J]")
     plt.subplot(2, 1, 1)
