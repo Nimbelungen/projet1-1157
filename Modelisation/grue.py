@@ -267,7 +267,6 @@ def simulation():
 
     # Fill E_im List
     for n in range(len(t)):
-        print(underwater_volume_mass(n))
         E_im[n] = -underwater_volume_mass(n) * g * ((barge_z / 2) - submersion_height())
 
 
