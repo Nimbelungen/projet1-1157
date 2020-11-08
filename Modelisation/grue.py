@@ -267,7 +267,7 @@ def simulation():
 
     # Fill E_im List
     for n in range(len(t)):
-        E_im[n] = -underwater_volume_mass(n) * g * ((barge_z / 2) - submersion_height())
+        E_im[n] = -underwater_volume_mass(n) * g * center_trust(theta_rad[n])[1]
 
 
 def graph_angles():
