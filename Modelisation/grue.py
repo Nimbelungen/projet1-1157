@@ -31,6 +31,7 @@ omega_rad = np.empty_like(t)  # [rad/s] List of omega values
 omega_deg = np.empty_like(t)  # [deg/s] List of omega values in degrees / seconds
 E_k = np.empty_like(t)  # [J] List of kinetic energy values
 E_g = np.empty_like(t)  # [J] List of gravitational energy
+E_im = np.empty_like(t)  # [J] List of immersed energy
 
 # -- Moving of the grue --
 grue2_angle = np.empty_like(t)  # [rad] List of angles between grue piece 1 and grue piece 2
@@ -144,7 +145,8 @@ def center_gravity(time):
 
     # Center of gravity
     cg = center_of_gravity_2d((barge_mass, barge_cg), (grue1_mass, grue1_cg), (grue2_mass, grue2_cg),
-                              (grue3_mass, grue3_cg), (grue4_mass, grue4_cg), (windturbine_mass, windturbine_cg),
+                              (grue3_mass, grue3_cg), (grue4_mass, grue4_cg),
+                              (windturbine_mass + grapple_mass, windturbine_cg),
                               (counterweight_mass, counterweight_cg))
     return cg
 
@@ -189,15 +191,17 @@ def center_trust(angle):
     return tuple([ctx, ctz])
 
 
-def underwater_volume_mass(angle):  # todo: continue this function
+# todo: review this function
+def underwater_volume_mass(angle):
     #  area of the trapeze times the width of the barge
     hc = submersion_height()
     parrallel_left = (hc - (math.tan(angle) * (barge_x / 2)))
     parrallel_right = (hc + (math.tan(angle) * (barge_x / 2)))
-    area = ((parrallel_left * parrallel_right) * hc) / 2
-    volume = area * barge_y
-
-    return volume
+    area = ((parrallel_left + parrallel_right) * barge_z) / 2
+    sub_volume = area * barge_y
+    frac = sub_volume / (barge_x * barge_y * barge_z)
+    mass_im = frac * barge_mass
+    return mass_im
 
 
 def barge_inclination(time):
@@ -261,6 +265,11 @@ def simulation():
     for m in range(len(t)):
         E_g[m] = mass_sum * g * center_gravity(m)[1]
 
+    # Fill E_im List
+    for n in range(len(t)):
+        print(underwater_volume_mass(n))
+        E_im[n] = -underwater_volume_mass(n) * g * ((barge_z / 2) - submersion_height())
+
 
 def graph_angles():
     """
@@ -309,11 +318,14 @@ def graph_energy():
     """
     plt.figure(3)
     plt.suptitle("Energie [J]")
-    plt.subplot(2, 1, 1)
+    plt.subplot(3, 1, 1)
     plt.plot(t, E_k, label="Énergie cinétique")
     plt.legend()
-    plt.subplot(2, 1, 2)
+    plt.subplot(3, 1, 2)
     plt.plot(t, E_g, label="Énergie gravitationnel")
+    plt.legend()
+    plt.subplot(3, 1, 3)
+    plt.plot(t, E_im, label="Énergie immergée")
     plt.legend()
     plt.show()
 
@@ -321,6 +333,7 @@ def graph_energy():
     plt.suptitle("Energie [J]")
     plt.plot(t, E_k, label="Énergie cinétique")
     plt.plot(t, E_g, label="Énergie gravitationnel")
+    plt.plot(t, E_im, label="Énergie immergée")
     plt.legend()
     plt.show()
 
@@ -339,3 +352,4 @@ print(tabulate([["Information's about", "Radians", "Degrees"],
                 ["Final Inclination", barge_inclination(-1), rad_to_degrees(barge_inclination(-1))]],
                headers="firstrow"))
 print("Submersion Height = {}m".format(submersion_height()))
+print("mass submergé {}".format(underwater_volume_mass(0)))

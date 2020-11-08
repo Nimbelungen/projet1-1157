@@ -3,8 +3,8 @@ from formulas import *
 # -- Barge --
 barge_x = 0.5  # [m] Barge length
 barge_y = 0.5  # [m] Barge width
-barge_z = 0.3  # [m] Barge height
-barge_mass = 0.3  # [kg] Barge mass
+barge_z = 0.1  # [m] Barge height
+barge_mass = 0.5  # [kg] Barge mass
 
 # -- Grue --
 
@@ -18,26 +18,26 @@ grue1_mass = 0.05  # [kg] Grue First Piece mass
 grue2_x = 0.350  # [m] Grue Second Piece length
 grue2_z = 0.05  # [m] Grue Second Piece height
 grue2_mass = 0.35  # [kg] Grue Second Piece mass
-grue2_angle_value = [degrees_to_radian(150), degrees_to_radian(0)]  # [deg] Angle of departure and arrival of this piece
+grue2_angle_value = [degrees_to_radian(81), degrees_to_radian(42)]  # [deg] Angle of departure and arrival of this piece
 # of grue. These angles are expressed as a function of the horizontal
 
 # - Third Piece -
 grue3_x_value = [0.3, 0.4]  # [m] Grue Third Piece start and finish length
 grue3_z = 0.05  # [m] Grue Third Piece height
 grue3_mass = 0.6  # [kg] Grue Third Piece mass
-grue3_angle_value = [degrees_to_radian(-60),
-                     degrees_to_radian(-20)]  # [deg] Angle of departure and arrival of this piece
+grue3_angle_value = [degrees_to_radian(-70),
+                     degrees_to_radian(4)]  # [deg] Angle of departure and arrival of this piece
 # of grue. These angles are expressed as a function of the horizontal
 
 # - Fourth Piece -
 grue4_x = 0.1  # [m] Grue Fourth Piece height
 grue4_z = 0.05  # [m] Grue Fourth Piece height
 grue4_mass = 0.05  # [kg] Grue Fourth Piece mass
-grue4_angle_value = [degrees_to_radian(-20), degrees_to_radian(0)]  # [deg] Angle of departure and arrival of this piece
+grue4_angle_value = [degrees_to_radian(-90), degrees_to_radian(0)]  # [deg] Angle of departure and arrival of this piece
 # of grue. These angles are expressed as a function of the horizontal
 
 # - Grapple -
-grapple_mass = 0  # [kg] Mass of the grapple
+grapple_mass = 0.1  # [kg] Mass of the grapple
 
 # -- Syringes --
 #  todo: there are now negligees
@@ -51,7 +51,7 @@ counterweight_x = 0.1  # [m] Counterweight length
 counterweight_position_x = - 0.1  # [m] Position along the x-axis of the counterweight
 counterweight_y = 0.1  # [m] Counterweight width
 counterweight_z = 0  # [m] Counterweight height
-counterweight_mass = 4  # [kg] Counterweight mass
+counterweight_mass = 8  # [kg] Counterweight mass
 
 # -- Moving -- todo not now used
 moving_max_x = 0  # [m] Length of travel
