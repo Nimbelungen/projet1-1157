@@ -2,9 +2,9 @@ from formulas import *
 
 # -- Barge --
 barge_x = 0.5  # [m] Barge length
-barge_y = 0.5  # [m] Barge width
+barge_y = 0.4  # [m] Barge width
 barge_z = 0.1  # [m] Barge height
-barge_mass = 0.5  # [kg] Barge mass
+barge_mass = 0.1  # [kg] Barge mass
 
 # -- Grue --
 
@@ -43,7 +43,7 @@ grapple_mass = 0.1  # [kg] Mass of the grapple
 #  todo: there are now negligees
 
 # -- Windturbine --
-windturbine_mass = 0.5  # [kg] Windturbine mass
+windturbine_mass = 0.1  # [kg] Windturbine mass
 # The size of the turbine is not taken in consideration. It is considered to be in the grapple at all times.
 
 # -- Counter-weight --
@@ -51,7 +51,7 @@ counterweight_x = 0.1  # [m] Counterweight length
 counterweight_position_x = - 0.1  # [m] Position along the x-axis of the counterweight
 counterweight_y = 0.1  # [m] Counterweight width
 counterweight_z = 0  # [m] Counterweight height
-counterweight_mass = 8  # [kg] Counterweight mass
+counterweight_mass = 5  # [kg] Counterweight mass
 
 # -- Moving -- todo not now used
 moving_max_x = 0  # [m] Length of travel
