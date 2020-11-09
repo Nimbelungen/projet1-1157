@@ -2,7 +2,7 @@ from formulas import *
 
 # -- Barge --
 barge_x = 0.5  # [m] Barge length
-barge_y = 0.4  # [m] Barge width
+barge_y = 0.5  # [m] Barge width
 barge_z = 0.1  # [m] Barge height
 barge_mass = 0.1  # [kg] Barge mass
 

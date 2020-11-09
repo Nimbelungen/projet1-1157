@@ -1,0 +1,9 @@
+Fonctions :
+- Masse de la barge pour avoir le meilleur hc
+- Distance de départ (x;y) et d'arrivée (x'; y') => ou se trouve le bout du bras ?
+(- Le meilleur contrepoid)
+
+Couples :
+- Sinusoides
+- 3d => sinusaoides + angles
+
