@@ -9,8 +9,8 @@ from formulas import *
 The following code takes place in a 3-dimensional coordinate system. However, some dimensions will be regularly ignored
 (especially the Y component). A tuple with 2 coordinates is thus composed of the x-y coordinates. 
 The X axis is horizontal (length) 
-The Y-axis is horizontal (width) T
-he Z axis is vertical (height) 
+The Y-axis is horizontal (width)
+he Z axis is vertical (height)
 The origin is positioned in the middle of the barge along the X and Y axis and at water level along the Z axis. 
 """
 
@@ -33,13 +33,14 @@ E_k = np.empty_like(t)  # [J] List of kinetic energy values
 E_g = np.empty_like(t)  # [J] List of gravitational energy
 E_im = np.empty_like(t)  # [J] List of immersed energy
 
-# -- Moving of the grue --
+# Moving of the grue
 grue2_angle = np.empty_like(t)  # [rad] List of angles between grue piece 1 and grue piece 2
 grue3_angle = np.empty_like(t)  # [rad] List of angles between grue piece 2 and grue piece 3
 grue4_angle = np.empty_like(t)  # [rad] List of angles between grue piece 3 and grue piece 4
 grue3_x = np.empty_like(t)  # [m] List of length of grue piece 3
 
 
+# Fill lists
 def fill_array():
     """
     This function fills the lists of angles and lengths of the crane.
@@ -61,6 +62,7 @@ def fill_array():
 
 
 # ---- Calculus Functions ---- Oder functions are in the 'formulas.py' file
+# -- Initial parameters --
 def submersion_height():
     """
     Calculate the submerged height of the barge
@@ -96,6 +98,7 @@ def maximum_inclination():
     return angle_max_x
 
 
+# -- Model with Centers --
 def center_gravity(time):
     """
     This function calculates the coordinates of the center of gravity of the whole grue as a function of time.
@@ -191,8 +194,13 @@ def center_trust(angle):
     return tuple([ctx, ctz])
 
 
-# todo: review this function
 def underwater_volume_mass(angle):
+    """
+    This function calculate the mass of the barge that is underwater
+    :type angle: float
+    :param angle: the angle of inclination of the barge
+    :return: a float that is the mass of the underwater-barge. (a fraction of the total mass of the barge)
+    """
     #  area of the trapeze times the width of the barge
     hc = submersion_height()
     parrallel_left = (hc - (math.tan(angle) * (barge_x / 2)))
@@ -204,14 +212,13 @@ def underwater_volume_mass(angle):
     return mass_im
 
 
-def barge_inclination(time):
+def barge_inclination_cg_cp(time):
     """
     Binary search algorithm. It search the value of the angle of inclination of the barge.
     :type time: int
     :param time: Time. This is the index in the 'np' lists. These lists have been completed by the function fill_array()
     :return: The value of the angle in radians
     """
-    global middle
     first = -math.pi / 2
     last = math.pi / 2  # todo: WARRING is the cause of some error
     find = False
@@ -230,7 +237,7 @@ def barge_inclination(time):
     return middle
 
 
-# ---- Simulation ----
+#  Simulation
 def simulation():
     """
     This function completes the following lists (applying a binary search for angles)=
@@ -242,7 +249,7 @@ def simulation():
     # --- Theta lists ---
     # Rad
     for i in range(len(t)):
-        theta_rad[i] = barge_inclination(i)
+        theta_rad[i] = barge_inclination_cg_cp(i)
     # Deg
     for i_2 in range(len(t)):
         theta_deg[i_2] = rad_to_degrees(theta_rad[i_2])
@@ -298,7 +305,7 @@ def graph_angles():
 
     # --- Figure 2 : Degrees ---
     plt.figure(2)
-    plt.suptitle("Inclinaison et vitesse anglulaire [°] et [°/s]")
+    plt.suptitle("Diagramme de phase")
     plt.subplot(2, 1, 1)
     plt.plot(t, theta_deg, label="Thêta")
     plt.plot(t, max_incl_deg, label="Max angle", linestyle='dashed')
@@ -309,13 +316,18 @@ def graph_angles():
     plt.legend()
     plt.show()
 
+    plt.figure(3)
+    plt.suptitle("Angle et Vitesse angulaire")
+    plt.plot(omega_rad, theta_rad)
+    plt.show()
+
 
 def graph_energy():
     """
     This function creates the graph of energy
     :return: 2 graph, one with the 3 lines and another were the lines are separate
     """
-    plt.figure(3)
+    plt.figure(4)
     plt.suptitle("Energie [J]")
     plt.subplot(3, 1, 1)
     plt.plot(t, E_k, label="Énergie cinétique : Ek")
@@ -328,7 +340,7 @@ def graph_energy():
     plt.legend()
     plt.show()
 
-    plt.figure(4)
+    plt.figure(5)
     plt.suptitle("Energie [J]")
     plt.plot(t, E_k, label="Énergie cinétique : Ek")
     plt.plot(t, E_g, label="Énergie potentiel : Eg")
@@ -337,18 +349,54 @@ def graph_energy():
     plt.show()
 
 
-# --- Lunch program ---
-# -- Simulation and graphs
+# -- Model with Couples --
+def couple_g():
+    pass
+
+
+def couple_c():
+    """
+    CONTAINS 'couple_a'
+    :return:
+    """
+    pass
+
+
+def find_omega():
+    pass
+
+
+def couple_d():
+    pass
+
+
+# Simulation
+def graph_sin():
+    pass
+
+
+def graph_energy2():
+    pass
+
+
+# ---- Lunch program ----
+
+# -- Simulation and graphs --
+# Centers
 fill_array()
 simulation()
 graph_angles()
 graph_energy()
+
+# Couples
+# todo: couples simulation
+
 # -- Print --
 print("Simulation of the grue - group 11.57")
 print(tabulate([["Information's about", "Radians", "Degrees"],
                 ["Maximum Inclination", maximum_inclination(), rad_to_degrees(maximum_inclination())],
-                ["Departure Inclination", barge_inclination(0), rad_to_degrees(barge_inclination(0))],
-                ["Final Inclination", barge_inclination(-1), rad_to_degrees(barge_inclination(-1))]],
+                ["Departure Inclination", barge_inclination_cg_cp(0), rad_to_degrees(barge_inclination_cg_cp(0))],
+                ["Final Inclination", barge_inclination_cg_cp(-1), rad_to_degrees(barge_inclination_cg_cp(-1))]],
                headers="firstrow"))
 print("Submersion Height = {}m".format(submersion_height()))
 print("mass submergé {}".format(underwater_volume_mass(0)))
