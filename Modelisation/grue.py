@@ -309,13 +309,18 @@ def graph_angles():
     plt.legend()
     plt.show()
 
+    plt.figure(3)
+    plt.suptitle("Angle et Vitesse angulaire")
+    plt.plot(omega_rad, theta_rad)
+    plt.show()
+
 
 def graph_energy():
     """
     This function creates the graph of energy
     :return: 2 graph, one with the 3 lines and another were the lines are separate
     """
-    plt.figure(3)
+    plt.figure(4)
     plt.suptitle("Energie [J]")
     plt.subplot(3, 1, 1)
     plt.plot(t, E_k, label="Énergie cinétique : Ek")
@@ -328,7 +333,7 @@ def graph_energy():
     plt.legend()
     plt.show()
 
-    plt.figure(4)
+    plt.figure(5)
     plt.suptitle("Energie [J]")
     plt.plot(t, E_k, label="Énergie cinétique : Ek")
     plt.plot(t, E_g, label="Énergie potentiel : Eg")
