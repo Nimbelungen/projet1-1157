@@ -317,7 +317,7 @@ def graph_angles():
     plt.show()
 
     plt.figure(3)
-    plt.suptitle("Angle et Vitesse angulaire")
+    plt.suptitle("Diagramme de phase")
     plt.plot(omega_rad, theta_rad)
     plt.show()
 
@@ -350,16 +350,24 @@ def graph_energy():
 
 
 # -- Model with Couples --
-def couple_g():
-    pass
+def couple_g(time):
+    """
+    Calculate the couple g - CONTAINS COUPLE_A
+    :type time: int
+    :param time: the couple a this time => INDEX in the list
+    :return: float
+    """
+    return -mass_sum * g * center_gravity(time)[0]
 
 
-def couple_c():
+def couple_c(angle):
     """
-    CONTAINS 'couple_a'
-    :return:
+    Couple of underwater barge
+    :type angle: float
+    :param angle: the angle at th time
+    :return: float
     """
-    pass
+    return underwater_volume_mass(angle) * g * center_trust(angle)[0]
 
 
 def find_omega():
