@@ -4,7 +4,7 @@ from formulas import *
 barge_x = 0.5  # [m] Barge length
 barge_y = 0.5  # [m] Barge width
 barge_z = 0.1  # [m] Barge height
-barge_mass = 0.1  # [kg] Barge mass
+barge_mass = 10  # [kg] Barge mass
 
 # -- Grue --
 
@@ -51,12 +51,17 @@ counterweight_x = 0.1  # [m] Counterweight length
 counterweight_position_x = - 0.1  # [m] Position along the x-axis of the counterweight
 counterweight_y = 0.1  # [m] Counterweight width
 counterweight_z = 0  # [m] Counterweight height
-counterweight_mass = 5  # [kg] Counterweight mass
+counterweight_mass = 0  # [kg] Counterweight mass
 
 # -- Moving -- todo not now used
 moving_max_x = 0  # [m] Length of travel
 moving_max_z = 0  # [m] Height of travel
 
 # -- Others --
-I = 0.00001  # [kg.m²]Inertia
-g = 9.81  # [m / s²] Gravitational acceleration
+I = 1  # [kg.m**2]Inertia
+g = 9.81  # [m / s**2] Gravitational acceleration
+D = 1.5  # todo: what is this ? it's used for torque C_d (line 206)
+
+# -- Calulus --
+mass_sum = barge_mass + grue1_mass + grue2_mass + grue3_mass + grue4_mass + grapple_mass + windturbine_mass + \
+           counterweight_mass

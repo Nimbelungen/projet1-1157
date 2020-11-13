@@ -1,46 +1,27 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from tabulate import tabulate
 
 from Modelisation.variables import *
 from formulas import *
 
-"""COORDINATE SYSTEM 
-The following code takes place in a 3-dimensional coordinate system. However, some dimensions will be regularly ignored
-(especially the Y component). A tuple with 2 coordinates is thus composed of the x-y coordinates. 
-The X axis is horizontal (length) 
-The Y-axis is horizontal (width)
-he Z axis is vertical (height)
-The origin is positioned in the middle of the barge along the X and Y axis and at water level along the Z axis. 
-"""
+# --- Simulation parameters
+step = 0.001  # steps (dt) [s]
+end = 20.0  # duration [s]
+theta_0 = 0.0  # initial angle [rad]
+omega_0 = 0.0  # initial angular velocity [rad/s]
 
-# ---- Calculus ----
-# -- Mass of the system --
-mass_sum = barge_mass + grue1_mass + grue2_mass + grue3_mass + grue4_mass + grapple_mass + windturbine_mass + \
-           counterweight_mass
+t = np.arange(0, end, step)
+theta = np.empty_like(t)
+omega = np.empty_like(t)
+a = np.empty_like(t)
 
-# -- Time --
-step = 0.1  # dt [s]
-end = 100.0  # [s]
-
-# -- Numpy lists --
-t = np.arange(0, end, step)  # [s] List of time
-theta_rad = np.empty_like(t)  # [rad] List of Theta values
-theta_deg = np.empty_like(t)  # [deg] List of theta value in degrees
-omega_rad = np.empty_like(t)  # [rad/s] List of omega values
-omega_deg = np.empty_like(t)  # [deg/s] List of omega values in degrees / seconds
-E_k = np.empty_like(t)  # [J] List of kinetic energy values
-E_g = np.empty_like(t)  # [J] List of gravitational energy
-E_im = np.empty_like(t)  # [J] List of immersed energy
-
-# Moving of the grue
+# --- Moving of the grue ---
 grue2_angle = np.empty_like(t)  # [rad] List of angles between grue piece 1 and grue piece 2
 grue3_angle = np.empty_like(t)  # [rad] List of angles between grue piece 2 and grue piece 3
 grue4_angle = np.empty_like(t)  # [rad] List of angles between grue piece 3 and grue piece 4
 grue3_x = np.empty_like(t)  # [m] List of length of grue piece 3
 
 
-# Fill lists
 def fill_array():
     """
     This function fills the lists of angles and lengths of the crane.
@@ -61,8 +42,7 @@ def fill_array():
         grue3_x[i + 1] = grue3_x[i] + step_grue3_x
 
 
-# ---- Calculus Functions ---- Oder functions are in the 'formulas.py' file
-# -- Initial parameters --
+# --- Calculus Functions ---
 def submersion_height():
     """
     Calculate the submerged height of the barge
@@ -98,7 +78,6 @@ def maximum_inclination():
     return angle_max_x
 
 
-# -- Model with Centers --
 def center_gravity(time):
     """
     This function calculates the coordinates of the center of gravity of the whole grue as a function of time.
@@ -212,199 +191,65 @@ def underwater_volume_mass(angle):
     return mass_im
 
 
-def barge_inclination_cg_cp(time):
-    """
-    Binary search algorithm. It search the value of the angle of inclination of the barge.
-    :type time: int
-    :param time: Time. This is the index in the 'np' lists. These lists have been completed by the function fill_array()
-    :return: The value of the angle in radians
-    """
-    first = -math.pi / 2
-    last = math.pi / 2  # todo: WARRING is the cause of some error
-    find = False
-
-    while first <= last and not find:
-        middle = (first + last) / 2
-        if abs(center_trust(middle)[0] - center_gravity(time)[0]) < 0.0000000000000001:
-            # if center_trust(middle)[0] - center_gravity(time)[0] == 0:
-            return middle
-        else:
-            if center_trust(middle)[0] < center_gravity(time)[0]:
-                first = middle + 0.00000000000000001
-
-            else:
-                last = middle - 0.00000000000000001
-    return middle
-
-
-#  Simulation
+# --- Simulation and find angles ---
 def simulation():
-    """
-    This function completes the following lists (applying a binary search for angles)=
-    - theta_rad and theta_deg \n
-    - omega_rad and omega_deg
-    - Energy : E_k, E_g and E_im
-    :return: Nothing, it only modifies variables
-    """
-    # --- Theta lists ---
-    # Rad
-    for i in range(len(t)):
-        theta_rad[i] = barge_inclination_cg_cp(i)
-    # Deg
-    for i_2 in range(len(t)):
-        theta_deg[i_2] = rad_to_degrees(theta_rad[i_2])
+    # Initial conditions
+    theta[0] = theta_0
+    omega[0] = omega_0
 
-    # --- Omega lists ---
-    # Rad
-    omega_rad[0] = None
-    for j in range(len(t) - 1):
-        omega_rad[j + 1] = (theta_rad[j + 1] - theta_rad[j]) / step
-    # Deg
-    for j_2 in range(len(t)):
-        omega_deg[j_2] = rad_to_degrees(omega_rad[j_2])
+    for i in range(len(t) - 1):
+        dt = step
 
-    # --- Energy lists ---
-    # Fill E_k List
-    for k in range(len(t)):
-        E_k[k] = I * ((omega_rad[k] ** 2) / 2)
+        # Calculation of torques
+        C_g = -(force(mass_sum) * center_gravity(0)[0])  # We first consider the center of gravity in x as constant
+        C_p = force(underwater_volume_mass(theta[i])) * center_trust(theta[i])[0]  # Depends on the angle
+        C_d = -D * omega[i]
+        C = C_g + C_p + C_d
 
-    # Fill E_g List
-    for m in range(len(t)):
-        E_g[m] = mass_sum * g * center_gravity(m)[1]
-
-    # Fill E_im List
-    for n in range(len(t)):
-        E_im[n] = -underwater_volume_mass(n) * g * center_trust(theta_rad[n])[1]
+        # Angle and angular velocity calculation
+        a[i] = C / I
+        omega[i + 1] = omega[i] + a[i] * dt  # todo: there is an error
+        theta[i + 1] = theta[i] + omega[i + 1] * dt
+        a[i + 1] = a[i]
 
 
-def graph_angles():
-    """
-    This function creates the omega and theta graphs.
-    :return: 2 graphs: the fist in radians and the second in degrees
-    """
-    # --- Max inclination value ---
-    max_incl_rad = np.empty_like(t)
-    max_incl_deg = np.empty_like(t)
-    for i in range(len(t)):
-        max_incl_rad[i] = maximum_inclination()
-    for i_2 in range(len(t)):
-        max_incl_deg[i_2] = rad_to_degrees(maximum_inclination())
-
-    # --- Figure 1 : Radians ---
+def graphs():
+    # Radians
     plt.figure(1)
-    plt.suptitle("Inclinaison et vitesse anglulaire [rad] et [rad/s]")
     plt.subplot(2, 1, 1)
-    plt.plot(t, theta_rad, label="Thêta")
-    plt.plot(t, max_incl_rad, label="Max angle", linestyle='dashed')
-    plt.plot(t, -max_incl_rad, label="Max angle", linestyle='dashed')
+    plt.plot(t, theta)
+    plt.plot([0, t[-1]], [maximum_inclination(), maximum_inclination()], '--r', label='Angle maximum')
+    plt.plot([0, t[-1]], [-maximum_inclination(), -maximum_inclination()], '--r')
+    plt.xlabel("t (s)")
+    plt.ylabel("angle (rad)")
     plt.legend()
     plt.subplot(2, 1, 2)
-    plt.plot(t, omega_rad, label="Omega")
+    plt.plot(t, omega)
+    plt.xlabel("t (s)")
+    plt.ylabel("vistesse angulaire (rad/s)")
     plt.legend()
     plt.show()
 
-    # --- Figure 2 : Degrees ---
+    # Degrees
     plt.figure(2)
-    plt.suptitle("Diagramme de phase")
     plt.subplot(2, 1, 1)
-    plt.plot(t, theta_deg, label="Thêta")
-    plt.plot(t, max_incl_deg, label="Max angle", linestyle='dashed')
-    plt.plot(t, -max_incl_deg, label="Max angle", linestyle='dashed')
+    plt.plot(t, rad_to_degrees(theta))
+    plt.plot([0, t[-1]], [rad_to_degrees(maximum_inclination()), rad_to_degrees(maximum_inclination())], '--r',
+             label='Angle maximum')
+    plt.plot([0, t[-1]], [-rad_to_degrees(maximum_inclination()), -rad_to_degrees(maximum_inclination())], '--r')
+    plt.xlabel("t (s)")
+    plt.ylabel("angle (°)")
     plt.legend()
     plt.subplot(2, 1, 2)
-    plt.plot(t, omega_deg, label="Omega")
-    plt.legend()
-    plt.show()
-
-    plt.figure(3)
-    plt.suptitle("Diagramme de phase")
-    plt.plot(omega_rad, theta_rad)
-    plt.show()
-
-
-def graph_energy():
-    """
-    This function creates the graph of energy
-    :return: 2 graph, one with the 3 lines and another were the lines are separate
-    """
-    plt.figure(4)
-    plt.suptitle("Energie [J]")
-    plt.subplot(3, 1, 1)
-    plt.plot(t, E_k, label="Énergie cinétique : Ek")
-    plt.legend()
-    plt.subplot(3, 1, 2)
-    plt.plot(t, E_g, label="Énergie potentiel : Eg")
-    plt.legend()
-    plt.subplot(3, 1, 3)
-    plt.plot(t, E_im, label="Énergie immergée : Eim")
-    plt.legend()
-    plt.show()
-
-    plt.figure(5)
-    plt.suptitle("Energie [J]")
-    plt.plot(t, E_k, label="Énergie cinétique : Ek")
-    plt.plot(t, E_g, label="Énergie potentiel : Eg")
-    plt.plot(t, E_im, label="Énergie immergée : Eim")
+    plt.plot(t, rad_to_degrees(omega))
+    plt.xlabel("t (s)")
+    plt.ylabel("vistesse angulaire (°/s)")
     plt.legend()
     plt.show()
 
 
-# -- Model with Couples --
-def couple_g(time):
-    """
-    Calculate the couple g - CONTAINS COUPLE_A
-    :type time: int
-    :param time: the couple a this time => INDEX in the list
-    :return: float
-    """
-    return -mass_sum * g * center_gravity(time)[0]
-
-
-def couple_c(angle):
-    """
-    Couple of underwater barge
-    :type angle: float
-    :param angle: the angle at th time
-    :return: float
-    """
-    return underwater_volume_mass(angle) * g * center_trust(angle)[0]
-
-
-def barge_inclination_couples():
-    pass
-
-
-def couple_d():
-    pass
-
-
-# Simulation
-def graph_sin():
-    pass
-
-
-def graph_energy2():
-    pass
-
-
-# ---- Lunch program ----
-
-# -- Simulation and graphs --
-# Centers
+# --- Lunch program ---
+print(submersion_height())
 fill_array()
 simulation()
-graph_angles()
-graph_energy()
-
-# Couples
-# todo: couples simulation
-
-# -- Print --
-print("Simulation of the grue - group 11.57")
-print(tabulate([["Information's about", "Radians", "Degrees"],
-                ["Maximum Inclination", maximum_inclination(), rad_to_degrees(maximum_inclination())],
-                ["Departure Inclination", barge_inclination_cg_cp(0), rad_to_degrees(barge_inclination_cg_cp(0))],
-                ["Final Inclination", barge_inclination_cg_cp(-1), rad_to_degrees(barge_inclination_cg_cp(-1))]],
-               headers="firstrow"))
-print("Submersion Height = {}m".format(submersion_height()))
-print("mass submergé {}".format(underwater_volume_mass(0)))
+graphs()

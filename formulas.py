@@ -1,4 +1,5 @@
 import math
+# from Modelisation.variables import g
 
 # You will find in this file the most important formulas that we will use to solve the different physics exercises.
 
@@ -71,3 +72,8 @@ def rotate_coord(coord, angle):
     x_prime = (math.cos(angle) * coord[0]) + (-math.sin(angle) * coord[1])
     y_prime = (math.sin(angle) * coord[0]) + (math.cos(angle) * coord[1])
     return tuple([x_prime, y_prime])
+
+
+# Forces
+def force(mass):
+    return mass * 9.81
