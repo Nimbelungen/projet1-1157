@@ -42,7 +42,6 @@ def center_of_gravity_2d(*args):
 def rad_to_degrees(angle):
     """
     This function transforms a given angle in radians to angle in degrees.
-    :type angle: float
     :param angle: The angle that we will 'change'
     :return: A float that is the angle in degrees
     """

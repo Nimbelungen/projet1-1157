@@ -227,7 +227,6 @@ def graphs():
     plt.plot(t, omega)
     plt.xlabel("t (s)")
     plt.ylabel("vistesse angulaire (rad/s)")
-    plt.legend()
     plt.show()
 
     # Degrees
@@ -244,7 +243,14 @@ def graphs():
     plt.plot(t, rad_to_degrees(omega))
     plt.xlabel("t (s)")
     plt.ylabel("vistesse angulaire (°/s)")
-    plt.legend()
+    plt.show()
+
+    # Phase diagram
+    plt.figure(3)
+    plt.title("Diagramme de phase")
+    plt.plot(rad_to_degrees(omega), rad_to_degrees(theta))
+    plt.xlabel("Theta (°)")
+    plt.ylabel("Omega (°/s")
     plt.show()
 
 
