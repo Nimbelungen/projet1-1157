@@ -16,6 +16,10 @@ Cette section correspond à la lise des variables nécessaires pour pouvoir exé
 - tan_theta = 0 Cette variable sera modifiée au cours de l'exécussion du programme.
 
 ## Données en sortie
+Les données sortantes sont :
+- les valeurs des angles de départ et d'arrivée du sysème
+- les graphiques de modélisation de la grue en fonction du temps
+- les coordonnées des centres de gravité des nouveaux systèmes
 ## Équation utilisées
 ### Hauteur du volume immergé "Hc"
 Pour cela, on égale la poussée d'archimède au poid de la grue.
