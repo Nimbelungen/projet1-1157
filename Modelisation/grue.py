@@ -1,77 +1,90 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from tabulate import tabulate
-
-from Modelisation.variables import *
-from formulas import *
+from math import atan, cos, sin, tan
+from variables import *
 
 """COORDINATE SYSTEM 
 The following code takes place in a 3-dimensional coordinate system. However, some dimensions will be regularly ignored
 (especially the Y component). A tuple with 2 coordinates is thus composed of the x-y coordinates. 
 The X axis is horizontal (length) 
-The Y-axis is horizontal (width) T
-he Z axis is vertical (height) 
+The Y-axis is horizontal (width)
+he Z axis is vertical (height)
 The origin is positioned in the middle of the barge along the X and Y axis and at water level along the Z axis. 
 """
 
-# ---- Calculus ----
-# -- Mass of the system --
-mass_sum = barge_mass + grue1_mass + grue2_mass + grue3_mass + grue4_mass + grapple_mass + windturbine_mass + \
-           counterweight_mass
+# --- Simulation parameters ---
+step = 0.1  # [s] steps (dt)
+end = 100  # [s] duration
+theta_0 = 0  # [rad] angle of inclination at t == 0
+omega_0 = 0  # [rad / s] angular velocity at t == 0
 
-# -- Time --
-step = 0.1  # dt [s]
-end = 100.0  # [s]
+t = np.arange(0, end, step)
+theta = np.empty_like(t)
+omega = np.empty_like(t)
+couples = np.empty_like(t)
+a = np.empty_like(t)
+cg_list_x = []
+cg_list_z = []
 
-# -- Numpy lists --
-t = np.arange(0, end, step)  # [s] List of time
-theta_rad = np.empty_like(t)  # [rad] List of Theta values
-theta_deg = np.empty_like(t)  # [deg] List of theta value in degrees
-omega_rad = np.empty_like(t)  # [rad/s] List of omega values
-omega_deg = np.empty_like(t)  # [deg/s] List of omega values in degrees / seconds
-E_k = np.empty_like(t)  # [J] List of kinetic energy values
-E_g = np.empty_like(t)  # [J] List of gravitational energy
-E_im = np.empty_like(t)  # [J] List of immersed energy
-
-# -- Moving of the grue --
-grue2_angle = np.empty_like(t)  # [rad] List of angles between grue piece 1 and grue piece 2
-grue3_angle = np.empty_like(t)  # [rad] List of angles between grue piece 2 and grue piece 3
-grue4_angle = np.empty_like(t)  # [rad] List of angles between grue piece 3 and grue piece 4
-grue3_x = np.empty_like(t)  # [m] List of length of grue piece 3
+# --- Moving of the crane ---
+grue2_angle = np.empty_like(t)  # [rad] angle from horizontal of the 2 crane part
+grue3_angle = np.empty_like(t)  # [rad] angle from horizontal of the 3 crane part
+grue3_x = np.empty_like(t)  # [m] length of the 3 crane part
+grue4_angle = np.empty_like(t)  # [rad] angle from horizontal of the 4 crane part
+begin_motion = 10  # [%] begin of motion (elapsed time)
+end_motion = 50  # [%] end of motion (elapsed time)
 
 
-def fill_array():
+def motion_list():
     """
-    This function fills the lists of angles and lengths of the crane.
-    :return: Nothing, it only modifies variables
+    Fill in the movement lists according to time and percentage of duration.
+    :return: True if all is ok, otherwise False
     """
-    grue2_angle[0] = grue2_angle_value[0]
-    grue3_angle[0] = grue3_angle_value[0]
-    grue4_angle[0] = grue4_angle_value[0]
-    grue3_x[0] = grue3_x_value[0]
-    step_grue2_angle = (grue2_angle_value[1] - grue2_angle_value[0]) / len(t)
-    step_grue3_angle = (grue3_angle_value[1] - grue3_angle_value[0]) / len(t)
-    step_grue4_angle = (grue4_angle_value[1] - grue4_angle_value[0]) / len(t)
-    step_grue3_x = (grue3_x_value[1] - grue3_x_value[0]) / len(t)
-    for i in range(len(t) - 1):
-        grue2_angle[i + 1] = grue2_angle[i] + step_grue2_angle
-        grue3_angle[i + 1] = grue3_angle[i] + step_grue3_angle
-        grue4_angle[i + 1] = grue4_angle[i] + step_grue4_angle
-        grue3_x[i + 1] = grue3_x[i] + step_grue3_x
+    try:
+        # Begin value
+        grue2_angle[0] = grue2_angle_value[0]
+        grue3_angle[0] = grue3_angle_value[0]
+        grue3_x[0] = grue3_x_value[0]
+        grue4_angle[0] = grue4_angle_value[0]
+
+        # Motion
+        motion = [int((len(t) / 100) * begin_motion), int((len(t) / 100) * end_motion)]
+
+        # Step
+        step_grue2_angle = (grue2_angle_value[1] - grue2_angle_value[0]) / (motion[1] - motion[0])
+        step_grue3_angle = (grue3_angle_value[1] - grue3_angle_value[0]) / (motion[1] - motion[0])
+        step_grue3_x = (grue3_x_value[1] - grue3_x_value[0]) / (motion[1] - motion[0])
+        step_grue4_angle = (grue4_angle_value[1] - grue4_angle_value[0]) / (motion[1] - motion[0])
+
+        # Fill lists
+        for i in range(len(t) - 1):
+            if motion[0] < i < motion[1]:
+                grue2_angle[i + 1] = grue2_angle[i] + step_grue2_angle
+                grue3_angle[i + 1] = grue3_angle[i] + step_grue3_angle
+                grue3_x[i + 1] = grue3_x[i] + step_grue3_x
+                grue4_angle[i + 1] = grue4_angle[i] + step_grue4_angle
+            else:
+                grue2_angle[i + 1] = grue2_angle[i]
+                grue3_angle[i + 1] = grue3_angle[i]
+                grue3_x[i + 1] = grue3_x[i]
+                grue4_angle[i + 1] = grue4_angle[i]
+
+        return True
+    except:
+        return False
 
 
-# ---- Calculus Functions ---- Oder functions are in the 'formulas.py' file
-def submersion_height():
+# --- Initial situation and Calculations ---
+def height_submersion():
     """
     Calculate the submerged height of the barge
-    :return: If hc < barge height : the distance hc (for submerged height), where hc is the length follow the submerged
-    z-axis of the barge. Otherwise, False
+    :return: If hc < barge height : the distance hc (for height of submersion), where hc is the length follow the
+    submerged z-axis of the barge. Otherwise, None
     """
     hc = mass_sum / (1000 * (barge_x * barge_y))
     if hc < barge_z:
         return hc
     else:
-        return False
+        return None
 
 
 def maximum_inclination():
@@ -79,32 +92,92 @@ def maximum_inclination():
     This function calculates the maximum tilt angles before the barge sinks along the X-axis.
     :return: The value in radians of the angle along the X-axis.
     """
-    # --- Along the X-axis ---
-    # Fist method
-    tan_theta1_x = (barge_z - submersion_height()) / (barge_x / 2)
-    angle_max1_x = math.atan(tan_theta1_x)
-    # Second method
-    tan_theta2_x = submersion_height() / (barge_x / 2)
-    angle_max2_x = math.atan(tan_theta2_x)
-    # Angle
-    if angle_max1_x <= angle_max2_x:
-        angle_max_x = angle_max1_x
-    else:
-        angle_max_x = angle_max2_x
+    try:
+        # Fist method
+        tan_theta = (barge_z - height_submersion()) / (barge_x / 2)
+        angle_max = atan(tan_theta)
 
-    # --- Return ---
-    return angle_max_x
+        return angle_max
+
+    except:
+        print("Problem when calculating the maximum tilt angle")
+        return None
 
 
-def center_gravity(time):
+def center_gravity(*args):
     """
-    This function calculates the coordinates of the center of gravity of the whole grue as a function of time.
-    :type time: int
-    :param time: Time. This is the index in the 'np' lists. These lists have been completed by the function fill_array()
+        This function calculates the center of gravity of a set of n bodies.
+        Each of these bodies has 2 coordinates (one x and one y). The system is thus in 2 dimensions.
+        The formula that is use is : cg(x) = ( m1*d1(x) + m2*d2(x) + m3*d3(x) + ...) / (m1 + m2 + m3 + ...)
+        (same form for the y axes).
+        :type args: tuple
+        :param args: Each argument is a tuple of values. They are of the form (mass, (x-coordinate, y-coordinate)).
+        :return: A tuple witch the Coordinates in the form (x-coordinate, y-coordinate) of the center of gravity.
+        If the calculation is impossible, return None
+        """
+    sum_of_mass = 0
+    for m in args:
+        sum_of_mass += m[0]
+
+    nominator_x = 0
+    nominator_y = 0
+    for x in args:
+        mass_dist_x = x[0] * x[1][0]
+        nominator_x += mass_dist_x
+    for y in args:
+        mass_dist_y = y[0] * y[1][1]
+        nominator_y += mass_dist_y
+
+    try:
+        cgx = nominator_x / sum_of_mass
+        cgy = nominator_y / sum_of_mass
+        return tuple([cgx, cgy])
+
+    except ZeroDivisionError:
+        print("Mass of the null system, no value for the center of gravity")
+        return None
+
+
+def rotate_coord(coord, angle):
+    """
+    This function applies a rotation to a couple of points x, y
+    :type coord: tuple
+    :type angle: float IN RADIAN
+    :param coord: The x, y coordinates of the point in R ** 2
+    :param angle: The angle rotation
+    :return: a tuple witch is the coordinates pf the new point
+    """
+    x_prime = (cos(angle) * coord[0]) + (-sin(angle) * coord[1])
+    y_prime = (sin(angle) * coord[0]) + (cos(angle) * coord[1])
+    return tuple([x_prime, y_prime])
+
+
+# --- Information's about the crane in function of the time ---
+def end_crane(index):
+    """
+    This function calculates the end of the crane as a function of time.
+    :type index: int
+    :param index: This is the index in the 'np' lists of time. These lists have been completed by the function
+    motion_list()
+    :return:  A tuple that is the coordinate along the x and z axis of the end of the crane
+    """
+    hb = (barge_z / 2) - height_submersion()
+    end_crane_init = (((cos(grue2_angle[index]) * grue2_x) + (cos(grue3_angle[index]) * grue3_x[index]) + grue4_x),
+                      (grue1_x + hb + (sin(grue2_angle[index]) * grue2_x) + (
+                              sin(grue3_angle[index]) * grue3_x[index]) + grue4_z))
+    return rotate_coord(end_crane_init, grue4_angle[index])
+
+
+def global_center_gravity(index):
+    """
+    This function calculates the coordinates of the center of gravity of the whole crane as a function of time.
+    :type index: int
+    :param index: This is the index in the 'np' lists of time. These lists have been completed by the function
+    motion_list()
     :return: A tuple that is the coordinate along the x and z axis of the center of gravity
     """
     # -- Barge --
-    hc = submersion_height()
+    hc = height_submersion()
     hb = (barge_z / 2) - hc
     barge_cg = (0, hb)
 
@@ -113,45 +186,44 @@ def center_gravity(time):
     grue1_cg = (0, hb + (grue1_z / 2))
 
     # Second Piece
-    grue2_cg_init = ((grue2_x / 2), (hb + (grue2_z / 2)))
-    grue2_cg = rotate_coord(grue2_cg_init, grue2_angle[time])
+    grue2_cg_init = ((grue2_x / 2), (hb + grue1_x + (grue2_z / 2)))
+    grue2_cg = rotate_coord(grue2_cg_init, grue2_angle[index])
 
     # Third Piece
-    grue2_cg_init = (((math.cos(grue2_angle[time]) * grue2_x) + (grue3_x[time] / 2)),
-                     (grue1_x + hb + (math.sin(grue2_angle[time]) * grue2_x) + (grue3_z / 2)))
-    grue3_cg = rotate_coord(grue2_cg_init, grue3_angle[time])
+    grue3_cg_init = (((cos(grue2_angle[index]) * grue2_x) + (grue3_x[index] / 2)),
+                     (grue1_x + hb + (sin(grue2_angle[index]) * grue2_x) + (grue3_z / 2)))
+    grue3_cg = rotate_coord(grue3_cg_init, grue3_angle[index])
 
     # Fourth Piece
-    grue4_cg_init = (
-        ((math.cos(grue2_angle[time]) * grue2_x) + (math.cos(grue3_angle[time]) * grue3_x[time]) + (grue4_x / 2)),
-        (grue1_x + hb + (math.sin(grue2_angle[time]) * grue2_x) + (
-                math.sin(grue3_angle[time]) * grue3_x[time]) + (grue4_z / 2)))
-    grue4_cg = rotate_coord(grue4_cg_init, grue4_angle[time])
+    grue4_cg_init = (((cos(grue2_angle[index]) * grue2_x) + (cos(grue3_angle[index]) * grue3_x[index]) + (grue4_x / 2)),
+                     (grue1_x + hb + (sin(grue2_angle[index]) * grue2_x) + (sin(grue3_angle[index]) * grue3_x[index]) +
+                      (grue4_z / 2)))
+    grue4_cg = rotate_coord(grue4_cg_init, grue4_angle[index])
 
     # -- Syringes --
     # todo: there are now negligees
 
-    # -- Windturbine -- = Coordonnées du bout de la partie 3 de la grue
-    windturbine_cg_init = (
-        ((math.cos(grue2_angle[time]) * grue2_x) + (math.cos(grue3_angle[time]) * grue3_x[time]) + grue4_x),
-        (grue1_x + hb + (math.sin(grue2_angle[time]) * grue2_x) + (
-                math.sin(grue3_angle[time]) * grue3_x[time]) + grue4_z))
-    windturbine_cg = rotate_coord(windturbine_cg_init, grue4_angle[time])
+    # -- Windturbine -- = Coordinates of the end of part 3 of the crane
+    windturbine_cg = end_crane(index)
 
     # -- Counterweight --
     counterweight_position_z = barge_z - hc
-    counterweight_cg = (
-        counterweight_position_x + (counterweight_x / 2), counterweight_position_z + (counterweight_y / 2))
+    counterweight_cg = (counterweight_position_x + (counterweight_x / 2),
+                        counterweight_position_z + (counterweight_y / 2))
 
     # Center of gravity
-    cg = center_of_gravity_2d((barge_mass, barge_cg), (grue1_mass, grue1_cg), (grue2_mass, grue2_cg),
-                              (grue3_mass, grue3_cg), (grue4_mass, grue4_cg),
-                              (windturbine_mass + grapple_mass, windturbine_cg),
-                              (counterweight_mass, counterweight_cg))
+    cg = center_gravity((barge_mass, barge_cg),
+                        (grue1_mass, grue1_cg),
+                        (grue2_mass, grue2_cg),
+                        (grue3_mass, grue3_cg),
+                        (grue4_mass, grue4_cg),
+                        (windturbine_mass + grapple_mass, windturbine_cg),
+                        (counterweight_mass, counterweight_cg))
+
     return cg
 
 
-def center_trust(angle):
+def center_thrust(angle):
     """
     Calculate the coordinate of the center of trust of the barge
     :type angle: float
@@ -159,201 +231,85 @@ def center_trust(angle):
     submerged shape change.
     :return: A tuple with the coordinate along X- and Z-axis of the center of trust
     """
-    hc = submersion_height()
+    hc = height_submersion()
 
-    # --- The coordinate system also rotates ---
+    # - The coordinate system also rotates -
     """ Formulas
     lxc = lctx = ( l * (h1 + 2 * h2) ) / (3 * (h1 + h2) )
     hc = lctz = (h1 ** 2 + h1 * h2 + h2 ** 2) / (3 * (h1 + h2) )
     Where :
      -  l = barge_x
-     - h1 = parrallel_right 
-     - h2 = parrallel_left 
+     - h1 = parallel_right 
+     - h2 = parallel_left 
        => the trapeze is in the wrong direction in the slides
     """
     # Length of the 2 parallel sides of the trapeze
-    parrallel_left = (hc - (math.tan(angle) * (barge_x / 2)))
-    parrallel_right = (hc + (math.tan(angle) * (barge_x / 2)))
+    parallel_left = (hc + (tan(angle) * (barge_x / 2)))
+    parallel_right = (hc - (tan(angle) * (barge_x / 2)))
 
     # Application of formulas
-    lctx = (barge_x / 3) * ((parrallel_right + (2 * parrallel_left)) / (parrallel_right + parrallel_left))
-    lctz = ((parrallel_right ** 2) + (parrallel_right * parrallel_left) + (parrallel_left ** 2)) / (
-            3 * (parrallel_right + parrallel_left))
+    lctx = (barge_x / 3) * ((parallel_right + (2 * parallel_left)) / (parallel_right + parallel_left))
+    lctz = ((parallel_right ** 2) + (parallel_right * parallel_left) + (parallel_left ** 2)) / (
+            3 * (parallel_right + parallel_left))
 
     # Coordinates in the inclined system
     ctx_rotate = (barge_x / 2) - lctx
     ctz_rotate = hc - lctz
 
-    # --- Rotation of the system ---
-    ctx = (ctx_rotate * math.cos(-angle)) - (ctz_rotate * math.sin(-angle))
-    ctz = (ctx_rotate * math.sin(-angle)) + (ctz_rotate * math.cos(-angle))
+    # - Rotation of the system -
+    return rotate_coord((ctx_rotate, ctz_rotate), angle)
 
+    """
+    ctx = (ctx_rotate * cos(angle)) + (ctz_rotate * -sin(angle))
+    ctz = (ctx_rotate * sin(angle)) + (ctz_rotate * cos(angle))
     return tuple([ctx, ctz])
+    """
 
 
-# todo: review this function
-def underwater_volume_mass(angle):
-    #  area of the trapeze times the width of the barge
-    hc = submersion_height()
-    parrallel_left = (hc - (math.tan(angle) * (barge_x / 2)))
-    parrallel_right = (hc + (math.tan(angle) * (barge_x / 2)))
-    area = ((parrallel_left + parrallel_right) * barge_z) / 2
-    sub_volume = area * barge_y
-    frac = sub_volume / (barge_x * barge_y * barge_z)
-    mass_im = frac * barge_mass
+def immersed_mass(angle):
+    """
+    Calculate the mass of the volume of water displaced by the barge
+    :type angle: float
+    :param angle: the angle of inclination of the barge
+    :return: float
+    """
+    hc = height_submersion()
+    # Length of the 2 parallel sides of the trapeze
+    parallel_left = (hc - (tan(angle) * (barge_x / 2)))
+    parallel_right = (hc + (tan(angle) * (barge_x / 2)))
+
+    trapeze_area = ((parallel_left + parallel_right) * barge_z) / 2
+    sub_volume = trapeze_area * barge_y
+    mass_im = sub_volume * 1000
     return mass_im
 
 
-def barge_inclination(time):
-    """
-    Binary search algorithm. It search the value of the angle of inclination of the barge.
-    :type time: int
-    :param time: Time. This is the index in the 'np' lists. These lists have been completed by the function fill_array()
-    :return: The value of the angle in radians
-    """
-    global middle
-    first = -math.pi / 2
-    last = math.pi / 2  # todo: WARRING is the cause of some error
-    find = False
-
-    while first <= last and not find:
-        middle = (first + last) / 2
-        if abs(center_trust(middle)[0] - center_gravity(time)[0]) < 0.0000000000000001:
-            # if center_trust(middle)[0] - center_gravity(time)[0] == 0:
-            return middle
-        else:
-            if center_trust(middle)[0] < center_gravity(time)[0]:
-                first = middle + 0.00000000000000001
-
-            else:
-                last = middle - 0.00000000000000001
-    return middle
-
-
-# ---- Simulation ----
+# --- Angles ---
 def simulation():
-    """
-    This function completes the following lists (applying a binary search for angles)=
-    - theta_rad and theta_deg \n
-    - omega_rad and omega_deg
-    - Energy : E_k, E_g and E_im
-    :return: Nothing, it only modifies variables
-    """
-    # --- Theta lists ---
-    # Rad
-    for i in range(len(t)):
-        theta_rad[i] = barge_inclination(i)
-    # Deg
-    for i_2 in range(len(t)):
-        theta_deg[i_2] = rad_to_degrees(theta_rad[i_2])
+    # Initial conditions
+    dt = step
+    omega[0] = omega_0
+    theta[0] = theta_0
 
-    # --- Omega lists ---
-    # Rad
-    omega_rad[0] = None
-    for j in range(len(t) - 1):
-        omega_rad[j + 1] = (theta_rad[j + 1] - theta_rad[j]) / step
-    # Deg
-    for j_2 in range(len(t)):
-        omega_deg[j_2] = rad_to_degrees(omega_rad[j_2])
+    for k in range(len(t) - 1):
+        couple_g = -mass_sum * g * global_center_gravity(k)[0]
+        couple_p = immersed_mass(theta[k]) * g * center_thrust(theta[k])[0]
+        couple_d = -D * omega[k]
+        couples[k] = couple_g + couple_p + couple_d
 
-    # --- Energy lists ---
-    # Fill E_k List
-    for k in range(len(t)):
-        E_k[k] = I * ((omega_rad[k] ** 2) / 2)
+        a[k] = couples[k] / inertia
+        omega[k + 1] = omega[k] + a[k] * dt
+        theta[k + 1] = theta[k] + omega[k] * dt
+        a[k + 1] = a[k]
 
-    # Fill E_g List
-    for m in range(len(t)):
-        E_g[m] = mass_sum * g * center_gravity(m)[1]
-
-    # Fill E_im List
-    for n in range(len(t)):
-        E_im[n] = -underwater_volume_mass(n) * g * center_trust(theta_rad[n])[1]
-
-
-def graph_angles():
-    """
-    This function creates the omega and theta graphs.
-    :return: 2 graphs: the fist in radians and the second in degrees
-    """
-    # --- Max inclination value ---
-    max_incl_rad = np.empty_like(t)
-    max_incl_deg = np.empty_like(t)
-    for i in range(len(t)):
-        max_incl_rad[i] = maximum_inclination()
-    for i_2 in range(len(t)):
-        max_incl_deg[i_2] = rad_to_degrees(maximum_inclination())
-
-    # --- Figure 1 : Radians ---
-    plt.figure(1)
-    plt.suptitle("Inclinaison et vitesse anglulaire [rad] et [rad/s]")
-    plt.subplot(2, 1, 1)
-    plt.plot(t, theta_rad, label="Thêta")
-    plt.plot(t, max_incl_rad, label="Max angle", linestyle='dashed')
-    plt.plot(t, -max_incl_rad, label="Max angle", linestyle='dashed')
-    plt.legend()
-    plt.subplot(2, 1, 2)
-    plt.plot(t, omega_rad, label="Omega")
-    plt.legend()
-    plt.show()
-
-    # --- Figure 2 : Degrees ---
-    plt.figure(2)
-    plt.suptitle("Inclinaison et vitesse anglulaire [°] et [°/s]")
-    plt.subplot(2, 1, 1)
-    plt.plot(t, theta_deg, label="Thêta")
-    plt.plot(t, max_incl_deg, label="Max angle", linestyle='dashed')
-    plt.plot(t, -max_incl_deg, label="Max angle", linestyle='dashed')
-    plt.legend()
-    plt.subplot(2, 1, 2)
-    plt.plot(t, omega_deg, label="Omega")
-    plt.legend()
-    plt.show()
-
-    plt.figure(3)
-    plt.suptitle("Angle et Vitesse angulaire")
-    plt.plot(omega_rad, theta_rad)
-    plt.show()
-
-
-def graph_energy():
-    """
-    This function creates the graph of energy
-    :return: 2 graph, one with the 3 lines and another were the lines are separate
-    """
-    plt.figure(4)
-    plt.suptitle("Energie [J]")
-    plt.subplot(3, 1, 1)
-    plt.plot(t, E_k, label="Énergie cinétique : Ek")
-    plt.legend()
-    plt.subplot(3, 1, 2)
-    plt.plot(t, E_g, label="Énergie potentiel : Eg")
-    plt.legend()
-    plt.subplot(3, 1, 3)
-    plt.plot(t, E_im, label="Énergie immergée : Eim")
-    plt.legend()
-    plt.show()
-
-    plt.figure(5)
-    plt.suptitle("Energie [J]")
-    plt.plot(t, E_k, label="Énergie cinétique : Ek")
-    plt.plot(t, E_g, label="Énergie potentiel : Eg")
-    plt.plot(t, E_im, label="Énergie immergée : Eim")
-    plt.legend()
-    plt.show()
+        # print("{} \t CG = {} \t CP = {} \t CD = {} \t T = {}".format(k, couple_g, couple_p, couple_d, theta[k]))
+        # print("{} \t {} \t {}".format(k, immersed_mass(theta[k]), center_thrust(theta[k])))
 
 
 # --- Lunch program ---
-# -- Simulation and graphs
-fill_array()
+motion_list()
 simulation()
-graph_angles()
-graph_energy()
-# -- Print --
-print("Simulation of the grue - group 11.57")
-print(tabulate([["Information's about", "Radians", "Degrees"],
-                ["Maximum Inclination", maximum_inclination(), rad_to_degrees(maximum_inclination())],
-                ["Departure Inclination", barge_inclination(0), rad_to_degrees(barge_inclination(0))],
-                ["Final Inclination", barge_inclination(-1), rad_to_degrees(barge_inclination(-1))]],
-               headers="firstrow"))
-print("Submersion Height = {}m".format(submersion_height()))
-print("mass submergé {}".format(underwater_volume_mass(0)))
+
+for i in range(len(t)):
+    cg_list_x.append(global_center_gravity(i)[0])
+    cg_list_z.append(global_center_gravity(i)[1])
